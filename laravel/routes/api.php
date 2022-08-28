@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MealController;
 use App\Http\Controllers\UserController;
@@ -23,6 +24,9 @@ Route::post('/user/login',[AuthController::class,'userLogin']);
 Route::middleware(['auth:sanctum', 'ability:admin,user'])->group(function(){
     Route::get('/logout',[AuthController::class,'logout']);
     Route::patch('/user/{user}/phone',[UserController::class,'changePhone']);
+    Route::get('/customer',[CustomerController::class,'get']);
+    Route::post('/customer',[CustomerController::class,'store']);
+    Route::put('/customer/{customer}',[CustomerController::class,'update']);
 });
 Route::middleware(['auth:sanctum', 'ability:admin,staff-manage'])->group(function(){
     Route::post('/user',[UserController::class,'store']);
@@ -41,4 +45,7 @@ Route::middleware(['auth:sanctum', 'ability:admin,meal-manage'])->group(function
     Route::delete('/meal/{meal}',[MealController::class,'destroy']);
     Route::get('/meals',[MealController::class,'getAll']);
     Route::put('/meal/{meal}',[MealController::class,'update']);
+});
+Route::middleware(['auth:sanctum', 'ability:admin,customer-manage'])->group(function(){
+    Route::get('/customers',[CustomerController::class,'getAll']);
 });
