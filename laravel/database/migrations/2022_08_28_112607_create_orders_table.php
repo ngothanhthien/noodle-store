@@ -1,11 +1,10 @@
 <?php
 
-use App\Models\Customer;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCustomersTable extends Migration
+class CreateOrdersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,12 +13,13 @@ class CreateCustomersTable extends Migration
      */
     public function up()
     {
-        Schema::create('customers', function (Blueprint $table) {
+        Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->string('phone',20)->unique();
-            $table->string('address',150);
-            $table->integer('purchased')->default(0);
-            $table->smallInteger('reputation')->default(Customer::REPUTATION_GOOD);
+            $table->foreignId('customer_id')->constrained('customers');
+            $table->foreignId('user_id')->nullable()->constrained('users');
+            $table->smallInteger('state');
+            $table->integer('total_price');
+            $table->smallInteger('payment_gate');
             $table->timestamps();
         });
     }
@@ -31,6 +31,6 @@ class CreateCustomersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('customers');
+        Schema::dropIfExists('orders');
     }
 }

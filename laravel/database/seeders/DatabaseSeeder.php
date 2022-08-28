@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Material;
+use App\Models\Meal;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +19,10 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         User::factory()->count(5)->create();
+        Meal::factory()
+        ->count(10)
+        ->hasAttached(Material::factory()->count(2),['quality' => 2])
+        ->create();
         DB::table('admins')->insert([
             'username' => 'admin',
             'password' => Hash::make('admin'),

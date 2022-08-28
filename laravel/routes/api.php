@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MealController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,11 @@ Route::middleware(['auth:sanctum', 'ability:admin,user'])->group(function(){
     Route::get('/customer',[CustomerController::class,'get']);
     Route::post('/customer',[CustomerController::class,'store']);
     Route::put('/customer/{customer}',[CustomerController::class,'update']);
+    Route::post('/order/customer',[OrderController::class,'storeWithNewCustomer']);
+    Route::post('/order/customer/{customer_id}',[OrderController::class,'storeWithOldCustomer']);
+    Route::patch('/order/customer/{customer}',[OrderController::class,'storeAndUpdateCustomer']);
+    Route::get('/order/{order}',[OrderController::class,'get']);
+    Route::put('/order/{order}',[OrderController::class,'update']);
 });
 Route::middleware(['auth:sanctum', 'ability:admin,staff-manage'])->group(function(){
     Route::post('/user',[UserController::class,'store']);
@@ -48,4 +54,7 @@ Route::middleware(['auth:sanctum', 'ability:admin,meal-manage'])->group(function
 });
 Route::middleware(['auth:sanctum', 'ability:admin,customer-manage'])->group(function(){
     Route::get('/customers',[CustomerController::class,'getAll']);
+});
+Route::middleware(['auth:sanctum', 'ability:admin,order-manage'])->group(function(){
+    Route::get('/orders',[OrderController::class,'getAll']);
 });
