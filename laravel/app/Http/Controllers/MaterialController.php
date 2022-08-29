@@ -13,7 +13,7 @@ class MaterialController extends Controller
     public function store(MaterialStoreRequest $request){
         try{
             Material::create($request->validated());
-            return response('',config('apistatus.ok'));
+            return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
         }
@@ -21,7 +21,7 @@ class MaterialController extends Controller
     public function destroy(Material $material){
         try{
             $material->delete();
-            return response('',config('apistatus.ok'));
+            return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
         }
@@ -32,9 +32,9 @@ class MaterialController extends Controller
     public function update(Material $material,MaterialUpdateRequest $request){
         try{
             $material->update($request->all());
-            return response('',config('apistatus.ok'));
+            return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
-            return response('',config('apistatus.badRequest'));
+            return response(['message'=>'success'],config('apistatus.badRequest'));
         }
     }
 }

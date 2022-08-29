@@ -15,7 +15,7 @@ class UserController extends Controller
         $form=$request->only(['username', 'password','name','phone']);
         try{
             User::create($form);
-            return response('',config('apistatus.ok'));
+            return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
             return response([
                 'errors'=>$e->getMessage()
@@ -24,7 +24,7 @@ class UserController extends Controller
     }
     public function destroy(User $user){
         $user->delete();
-        return response('',config('apistatus.ok'));
+        return response(['message'=>'success'],config('apistatus.ok'));
     }
     public function getAll(){
         return User::paginate(10);
@@ -35,7 +35,7 @@ class UserController extends Controller
         }
         $user->phone = $request->phone;
         $user->save();
-        return response('',config('apistatus.ok'));
+        return response(['message'=>'success'],config('apistatus.ok'));
     }
     public function changeRule($id,Request $request){
         if(!$request->has('rules')){
@@ -53,7 +53,7 @@ class UserController extends Controller
                     'name'=>$rule
                 ]);
             }
-            return response('',config('apistatus.ok'));
+            return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
         }        

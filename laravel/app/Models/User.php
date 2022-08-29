@@ -18,6 +18,7 @@ class User extends Authenticatable
         'password',
         'phone',
     ];
+    protected $hidden=['password'];
     public function rules(){
         return $this->hasMany(Rule::class);
     }

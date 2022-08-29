@@ -17,7 +17,7 @@ class MealController extends Controller
                 'price' => $request->price
             ]);
             $meal->materials()->attach($request->materials);
-            return response('',config('apistatus.ok'));
+            return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));   
         }
@@ -29,7 +29,7 @@ class MealController extends Controller
                 'price' => $request->price
             ]);
             $meal->materials()->sync($request->materials);
-            return response('',config('apistatus.ok'));
+            return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
         }
@@ -45,7 +45,7 @@ class MealController extends Controller
     public function destroy(Meal $meal){
         try{
             $meal->delete();
-            return response('',config('apistatus.ok'));
+            return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
         }

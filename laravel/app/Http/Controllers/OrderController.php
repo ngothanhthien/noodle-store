@@ -34,7 +34,7 @@ class OrderController extends Controller
             
             $order->meals()->attach($request->meals);
             DB::commit();
-            return response('',config('apistatus.ok'));
+            return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
             DB::rollBack();
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
@@ -56,7 +56,7 @@ class OrderController extends Controller
             
             $order->meals()->attach($request->meals);
             DB::commit();
-            return response('',config('apistatus.ok'));
+            return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
             DB::rollBack();
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
@@ -82,7 +82,7 @@ class OrderController extends Controller
             
             $order->meals()->attach($request->meals);
             DB::commit();
-            return response('',config('apistatus.ok'));
+            return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
             DB::rollBack();
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
@@ -123,7 +123,7 @@ class OrderController extends Controller
             $order->meals()->sync($request->meals);
 
             DB::commit();
-            return response('',config('apistatus.ok'));
+            return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
             DB::rollBack();
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
@@ -132,7 +132,7 @@ class OrderController extends Controller
     public function destroy(Order $order){
         try{
             $order->delete();
-            return response('',config('apistatus.ok'));
+            return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
         }

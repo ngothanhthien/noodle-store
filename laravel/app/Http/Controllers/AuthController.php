@@ -22,7 +22,7 @@ class AuthController extends Controller
     }
     public function logout(Request $request){
         $request->user()->tokens()->delete();
-        return response('',config('apistatus.ok'));
+        return response(['message'=>'success'],config('apistatus.ok'));
     }
     public function adminLogin(LoginRequest $request){
         $admin=Admin::where('username',$request->username)->first();
@@ -42,7 +42,7 @@ class AuthController extends Controller
     }
     private function userLoginProcessAndResponse($user) {
         $user->tokens()->delete();
-        $abilities =['user'];
+        $abilities =[];
         foreach($user->rules as $rule){
             array_push($abilities,$rule->name);
         }
@@ -52,9 +52,18 @@ class AuthController extends Controller
                     'username' => $user->username,
                     'name' => $user->name,
                     'phone' => $user->phone,
+                    'role'=>'user',
                     'rules' => $abilities,
                 ],
-            'token'=>$user->createToken('User Token',$abilities)->plainTextToken,
+            'token'=>$user->createToken('User Token',['user',...$abilities])->plainTextToken,
         ];
+    }
+    public function getUserByToken(Request $request){
+        $user=$request->user();
+        if($user->tokenCan('admin')){
+            return response(['user'=>$user,'role'=>'admin'],config('apistatus.ok'));
+        }
+        $user->rules;
+        return response(['user'=>$user,'role'=>'user'],config('apistatus.ok'));
     }
 }
