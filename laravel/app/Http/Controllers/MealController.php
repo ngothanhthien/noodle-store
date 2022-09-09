@@ -11,24 +11,20 @@ use Illuminate\Http\Request;
 class MealController extends Controller
 {
     public function store(StoreMealRequest $request){
+        $form=$request->validated();
+        if($request->has('description')){
+            $form['description']=$request->description;
+        }
         try{
-            $meal=Meal::create([
-                'name' => $request->name,
-                'price' => $request->price
-            ]);
-            $meal->materials()->attach($request->materials);
-            return response(['message'=>'success'],config('apistatus.ok'));
+            $meal=Meal::create($form);
+            return response(['meal'=>$meal],config('apistatus.ok'));
         }catch(Exception $e){
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));   
         }
     }
     public function update(UpdateMealRequest $request,Meal $meal){
         try{
-            $meal->update([
-                'name' => $request->name,
-                'price' => $request->price
-            ]);
-            $meal->materials()->sync($request->materials);
+            $meal->update($request->validated());
             return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
@@ -36,7 +32,23 @@ class MealController extends Controller
     }
     public function getAll(){
         try{
-            $meals=Meal::with('materials')->paginate(20);
+            $meals=Meal::paginate(Meal::MEAL_PER_PAGE);
+            return response(['meals'=>$meals],config('apistatus.ok'));
+        }catch(Exception $e){
+            return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
+        }
+    }
+    public function getNewMeal(){
+        try{
+            $meals=Meal::orderBy('created_at', 'DESC')->limit(Meal::MEAL_NEW_TOTAL)->get();
+            return response(['meals'=>$meals],config('apistatus.ok'));
+        }catch(Exception $e){
+            return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
+        }
+    }
+    public function getBestSellerMeal(){
+        try{
+            $meals=Meal::orderBy('buy_amount', 'DESC')->limit(Meal::MEAL_BEST_SELLER_TOTAL)->get();
             return response(['meals'=>$meals],config('apistatus.ok'));
         }catch(Exception $e){
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));

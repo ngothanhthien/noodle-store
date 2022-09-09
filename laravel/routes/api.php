@@ -33,18 +33,14 @@ Route::middleware(['auth:sanctum', 'ability:admin,user'])->group(function(){
     Route::patch('/order/customer/{customer}',[OrderController::class,'storeAndUpdateCustomer']);
     Route::get('/order/{order}',[OrderController::class,'get']);
     Route::put('/order/{order}',[OrderController::class,'update']);
+    Route::get('/meals/new',[MealController::class,'getNewMeal']);
+    Route::get('/meals/best',[MealController::class,'getBestSellerMeal']);
 });
 Route::middleware(['auth:sanctum', 'ability:admin,staff-manage'])->group(function(){
     Route::post('/user',[UserController::class,'store']);
     Route::delete('/user/{user}',[UserController::class,'destroy']);
     Route::get('/users',[UserController::class,'getAll']);
     Route::put('/user/{user}/rules',[UserController::class,'changeRule']);
-});
-Route::middleware(['auth:sanctum', 'ability:admin,material-manage'])->group(function(){
-    Route::post('/material',[MaterialController::class,'store']);
-    Route::delete('/material/{material}',[MaterialController::class,'destroy']);
-    Route::get('/materials',[MaterialController::class,'getAll']);
-    Route::put('/material/{material}',[MaterialController::class,'update']);
 });
 Route::middleware(['auth:sanctum', 'ability:admin,meal-manage'])->group(function(){
     Route::post('/meal',[MealController::class,'store']);

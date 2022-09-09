@@ -26,7 +26,6 @@ class StoreMealRequest extends FormRequest
         return [
             'price' => 'required',
             'name' => 'required',
-            'materials' => 'required|array',
         ];
     }
 }

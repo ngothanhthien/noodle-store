@@ -22,8 +22,7 @@ class DatabaseSeeder extends Seeder
     {
         User::factory()->count(5)->create();
         Meal::factory()
-        ->count(10)
-        ->hasAttached(Material::factory()->count(2),['quality' => 2])
+        ->count(32)
         ->create();
         DB::table('admins')->insert([
             'username' => 'admin',

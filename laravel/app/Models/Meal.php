@@ -8,8 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Meal extends Model
 {
     use HasFactory;
-    public $timestamps = false;
-    public $fillable=['name','price'];
+    const MEAL_PER_PAGE=20;
+    const MEAL_NEW_TOTAL=3;
+    const MEAL_BEST_SELLER_TOTAL=3;
+    public $fillable=['name','price','description'];
     public function materials(){
         return $this->belongsToMany(Material::class,'recipes');
     }

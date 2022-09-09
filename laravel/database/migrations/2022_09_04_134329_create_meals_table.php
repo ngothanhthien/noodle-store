@@ -17,8 +17,9 @@ return new class extends Migration
             $table->id();
             $table->integer('price');
             $table->integer('buy_amount')->default(0);
-            $table->integer('sale_id')->nullable();
+            $table->text('description')->nullable();
             $table->string('name',100);
+            $table->timestamps();
         });
     }
 
