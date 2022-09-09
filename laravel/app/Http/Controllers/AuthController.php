@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
+use App\Http\Resources\StaffResource;
 use App\Models\Admin;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -11,14 +12,19 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     public function userLogin(LoginRequest $request){
-        $user=User::where('username',$request->username)->first();
+        $user=User::where('username',$request->username)->with('rules')->first();
         if(!$user){
             return response(['errors'=>'Wrong username or password'],config('apistatus.loginFailed'));
         }
         if(!Hash::check($request->password,$user->password)){
             return response(['errors'=>'Wrong username or password'],config('apistatus.loginFailed'));
         }
-        return response($this->userLoginProcessAndResponse($user),config('apistatus.ok'));
+        return response(
+            [
+                'user'=>new StaffResource($user),
+                'token'=>$this->issueUserToken($user),
+            ]
+            ,config('apistatus.ok'));
     }
     public function logout(Request $request){
         $request->user()->tokens()->delete();
@@ -37,26 +43,20 @@ class AuthController extends Controller
         ],config('apistatus.ok'));
     }
     private function issueAdminToken($admin){
-        $admin->tokens()->delete();
+        if($admin->tokens->first()){
+            $admin->tokens()->delete();
+        }
         return $admin->createToken('Admin Token',['admin'])->plainTextToken;
     }
-    private function userLoginProcessAndResponse($user) {
-        $user->tokens()->delete();
+    private function issueUserToken($user){
+        if($user->tokens->first()){
+            $user->tokens()->delete();
+        }
         $abilities =[];
         foreach($user->rules as $rule){
             array_push($abilities,$rule->name);
         }
-        return [
-            'user' => 
-                [
-                    'username' => $user->username,
-                    'name' => $user->name,
-                    'phone' => $user->phone,
-                    'role'=>'user',
-                    'rules' => $abilities,
-                ],
-            'token'=>$user->createToken('User Token',['user',...$abilities])->plainTextToken,
-        ];
+        return $user->createToken('User Token',['user',...$abilities])->plainTextToken;
     }
     public function getUserByToken(Request $request){
         $user=$request->user();

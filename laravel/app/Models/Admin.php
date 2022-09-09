@@ -10,5 +10,4 @@ class Admin extends Model
 {
     use HasFactory,HasApiTokens;
     public $timestamps = false;
-    protected $hidden=['password'];
 }

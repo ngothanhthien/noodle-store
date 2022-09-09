@@ -6,7 +6,6 @@ use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MealController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,7 +38,7 @@ Route::middleware(['auth:sanctum', 'ability:admin,staff-manage'])->group(functio
     Route::post('/user',[UserController::class,'store']);
     Route::delete('/user/{user}',[UserController::class,'destroy']);
     Route::get('/users',[UserController::class,'getAll']);
-    Route::put('/user/{id}/rules',[UserController::class,'changeRule']);
+    Route::put('/user/{user}/rules',[UserController::class,'changeRule']);
 });
 Route::middleware(['auth:sanctum', 'ability:admin,material-manage'])->group(function(){
     Route::post('/material',[MaterialController::class,'store']);

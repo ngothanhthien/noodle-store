@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CustomerGetRequest;
-use App\Http\Requests\CustomerStoreRequest;
-use App\Http\Requests\CustomerUpdateRequest;
 use App\Models\Customer;
 use Exception;
 use Illuminate\Http\Request;

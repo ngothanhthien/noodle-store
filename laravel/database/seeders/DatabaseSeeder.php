@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
 use App\Models\Material;
 use App\Models\Meal;
 use App\Models\User;
@@ -30,6 +32,8 @@ class DatabaseSeeder extends Seeder
         DB::table('users')->insert([
             'username' => 'user0',
             'password' => Hash::make('123456'),
+            'name' => 'Nguyễn Văn Minh',
+            'phone' => '0911222333',
         ]);
     }
 }

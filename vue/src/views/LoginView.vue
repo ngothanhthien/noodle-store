@@ -7,6 +7,8 @@ import LockIcon from "../components/icons/LockIcon.vue";
 import { usernameValidate, passwordValidate } from "../validate/user";
 import { fetchMethod } from "../logic/fetchAPI";
 import { loginAPI } from "../api";
+import axios from 'axios'
+
 const router = useRouter()
 const form = reactive({
   username: "",

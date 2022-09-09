@@ -9,6 +9,7 @@ class Order extends Model
 {
     use HasFactory;
     const STATE_DELIVERY =1;
+    const STATE_SUCCESS =0;
     public function meals(){
         return $this->belongsToMany(Meal::class,'order_details');
     }

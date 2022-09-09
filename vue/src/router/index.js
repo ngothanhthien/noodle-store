@@ -29,6 +29,18 @@ const routes=[
     name:'dashboard',
     component: DashboardView,
     beforeEnter: checkLogged,
+    children:[
+      {
+        path:'staff',
+        name:'Staff Manage',
+        component: ()=>import('../views/Dashboard/StaffManageView.vue'),
+        beforeEnter: checkLogged,
+      }
+    ],
+  },
+  {
+    path:'/test',
+    component: ()=>import('../views/TestView.vue')
   }
 ]
 const router = createRouter({

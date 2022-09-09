@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OrderStoreAndUpdateCustomerRequest;
-use App\Http\Requests\OrderStoreRequest;
 use App\Http\Requests\OrderStoreWithNewCustomerRequest;
 use App\Http\Requests\OrderStoreWithOldCustomerRequest;
 use App\Http\Requests\OrderUpdateRequest;
