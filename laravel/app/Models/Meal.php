@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Meal extends Model
 {
     use HasFactory;
-    const MEAL_PER_PAGE=20;
     const MEAL_NEW_TOTAL=3;
     const MEAL_BEST_SELLER_TOTAL=3;
-    public $fillable=['name','price','description'];
+    const TYPE_TOPPING=2;
+    const TYPE_DRINK=1;
+    const TYPE_MAIN=0;
+    public $fillable=['name','price','description','image','type'];
     public function materials(){
         return $this->belongsToMany(Material::class,'recipes');
     }

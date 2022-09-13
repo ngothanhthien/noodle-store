@@ -31,9 +31,19 @@ const routes=[
     beforeEnter: checkLogged,
     children:[
       {
-        path:'staff',
+        path:'/staff',
         name:'Staff Manage',
         component: ()=>import('../views/Dashboard/StaffManageView.vue'),
+        beforeEnter: checkLogged,
+      },
+      {
+        path:'/order',
+        redirect:'/order/create',
+      },
+      {
+        path:'/order/create',
+        name:'Order Create',
+        component: ()=>import('../views/Dashboard/OrderCreateView.vue'),
         beforeEnter: checkLogged,
       }
     ],

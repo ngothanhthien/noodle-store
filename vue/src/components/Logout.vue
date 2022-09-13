@@ -13,7 +13,7 @@ const logout=async ()=>{
 }
 </script>
 <template>
-    <div @click="logout" class="fixed right-3 top-1 underline cursor-pointer hover:text-red-500">
+    <div @click="logout" class="fixed right-3 select-none top-1 underline cursor-pointer hover:text-red-500">
         Đăng xuất
     </div>
 </template>

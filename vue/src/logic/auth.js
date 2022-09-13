@@ -5,3 +5,4 @@ export const backToLogin=()=>{
     Cookies.remove('User Info');
     router.push({name:'login'});
 }
+export const getUserToken=()=> Cookies.get('User Token');

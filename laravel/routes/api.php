@@ -28,13 +28,12 @@ Route::middleware(['auth:sanctum', 'ability:admin,user'])->group(function(){
     Route::get('/customer',[CustomerController::class,'get']);
     Route::post('/customer',[CustomerController::class,'store']);
     Route::put('/customer/{customer}',[CustomerController::class,'update']);
-    Route::post('/order/customer',[OrderController::class,'storeWithNewCustomer']);
-    Route::post('/order/customer/{customer_id}',[OrderController::class,'storeWithOldCustomer']);
-    Route::patch('/order/customer/{customer}',[OrderController::class,'storeAndUpdateCustomer']);
+    Route::post('/order',[OrderController::class,'store']);
     Route::get('/order/{order}',[OrderController::class,'get']);
     Route::put('/order/{order}',[OrderController::class,'update']);
     Route::get('/meals/new',[MealController::class,'getNewMeal']);
     Route::get('/meals/best',[MealController::class,'getBestSellerMeal']);
+    Route::get('/meals',[MealController::class,'getAll']);
 });
 Route::middleware(['auth:sanctum', 'ability:admin,staff-manage'])->group(function(){
     Route::post('/user',[UserController::class,'store']);
@@ -45,7 +44,6 @@ Route::middleware(['auth:sanctum', 'ability:admin,staff-manage'])->group(functio
 Route::middleware(['auth:sanctum', 'ability:admin,meal-manage'])->group(function(){
     Route::post('/meal',[MealController::class,'store']);
     Route::delete('/meal/{meal}',[MealController::class,'destroy']);
-    Route::get('/meals',[MealController::class,'getAll']);
     Route::put('/meal/{meal}',[MealController::class,'update']);
 });
 Route::middleware(['auth:sanctum', 'ability:admin,customer-manage'])->group(function(){

@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\OrderStoreAndUpdateCustomerRequest;
-use App\Http\Requests\OrderStoreWithNewCustomerRequest;
-use App\Http\Requests\OrderStoreWithOldCustomerRequest;
+use App\Http\Requests\OrderStoreRequest;
 use App\Http\Requests\OrderUpdateRequest;
 use App\Models\Customer;
+use App\Models\Meal;
 use App\Models\Order;
 use Exception;
 use Illuminate\Http\Request;
@@ -14,72 +13,30 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
-    public function storeWithNewCustomer(OrderStoreWithNewCustomerRequest $request){
-        DB::beginTransaction();
-        try{
-            $user=$request->user();
-
-            $customer=Customer::create($request->customer);
-
-            $order=new Order();
-            $order->customer_id=$customer->id;
-            if(!$user->tokenCan('admin')){
-                $order->user_id=$user->id;
+    public function store(OrderStoreRequest $request){
+        $total_price=0;
+        $mealsInput=$request->meals;
+        foreach($mealsInput as $id=>$quality){
+            $meal=Meal::find($id);
+            if(!$meal){
+                return response(['errors'=>'Bad request'],config('apistatus.badRequest'));
             }
-            $order->state=Order::STATE_DELIVERY;
-            $order->payment_gate=$request->payment_gate;
-            $order->total_price=$this->totalPrice($request->meals);
-            $order->save();
-            
-            $order->meals()->attach($request->meals);
-            DB::commit();
-            return response(['message'=>'success'],config('apistatus.ok'));
-        }catch(Exception $e){
-            DB::rollBack();
-            return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
+            $total_price += $meal->price*intval($quality);
+            $mealsInput[$id]['price']=$meal->price;
         }
-    }
-    public function storeWithOldCustomer(OrderStoreWithOldCustomerRequest $request,$customer_id){
         DB::beginTransaction();
         try{
-            $user=$request->user();
-            $order=new Order();
-            $order->customer_id=$customer_id;
-            if(!$user->tokenCan('admin')){
-                $order->user_id=$user->id;
+            if($request->has('phone')&&$request->has('address')){
+                $customer=Customer::updateOrCreate(['phone'=>$request->phone],['address'=>$request->address]);
             }
-            $order->state=Order::STATE_DELIVERY;
-            $order->payment_gate=$request->payment_gate;
-            $order->total_price=$this->totalPrice($request->meals);
-            $order->save();
-            
-            $order->meals()->attach($request->meals);
-            DB::commit();
-            return response(['message'=>'success'],config('apistatus.ok'));
-        }catch(Exception $e){
-            DB::rollBack();
-            return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
-        }
-    }
-    public function storeAndUpdateCustomer(OrderStoreAndUpdateCustomerRequest $request, Customer $customer){
-        DB::beginTransaction();
-        try{
-            $user=$request->user();
-
-            $customer->address=$request->address;
-            $customer->save();
-
-            $order=new Order();
-            $order->customer_id=$customer->id;
-            if(!$user->tokenCan('admin')){
-                $order->user_id=$user->id;
-            }
-            $order->state=Order::STATE_DELIVERY;
-            $order->payment_gate=$request->payment_gate;
-            $order->total_price=$this->totalPrice($request->meals);
-            $order->save();
-            
-            $order->meals()->attach($request->meals);
+            $order=Order::create([
+                'customer_id' => $request->has('phone')&&$request->has('address')?$customer->id:null,
+                'user_id' => $request->user()->id,
+                'state' => Order::STATE_DELIVERY,
+                'payment_gate' =>$request->payment_gate,
+                'total_price' => $total_price,
+            ]);
+            $order->meals()->attach($mealsInput);
             DB::commit();
             return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){

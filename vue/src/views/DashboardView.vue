@@ -1,5 +1,6 @@
 <script setup>
 import GroupIcon from "../components/icons/GroupIcon.vue";
+import ShoppingCartIcon from "../components/icons/ShoppingCartIcon.vue";
 import Logout from "../components/Logout.vue";
 import SidebarItem from "../components/SidebarItem.vue";
 </script>
@@ -8,9 +9,12 @@ import SidebarItem from "../components/SidebarItem.vue";
   <div class="h-screen w-full flex">
     <div class="w-72 h-full divide-y">
       <div class="py-2 px-2">Chào Ngô Thanh Thiên!</div>
-      <SidebarItem :icon="GroupIcon" title="Quản lý nhân viên" target="Staff Manage" />
+      <div>
+        <SidebarItem :icon="GroupIcon" title="Quản lý nhân viên" target="Staff Manage" />
+        <SidebarItem :icon="ShoppingCartIcon" title="Đơn hàng" target="Order Create" />
+      </div>
     </div>
-    <div class="w-full bg-slate-100 py-2 px-4 overflow-y-scroll">
+    <div class="w-full bg-slate-100 py-2 px-4 relative">
       <router-view></router-view>
     </div>
     <Logout />

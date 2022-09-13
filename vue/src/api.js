@@ -4,3 +4,6 @@ export const getInfoTokenAPI=server+"/me"; //get
 export const logoutAPI=server+"/logout"; //get
 export const getAllStaffAPI=server+"/users"; //get
 export const staffAPI=server+"/user"; //delete +id,post
+export const getAllMealAPI=server+"/meals"; //get
+export const getCustomerByPhone=server+"/customer";//get
+export const orderAPI=server+"/order"; //post

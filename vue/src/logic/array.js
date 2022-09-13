@@ -15,3 +15,9 @@ export function removeObjFromArrayById(array,id){
 export function arrayHasSubArray(array,subArray){
     return subArray.every((element) => array.includes(element));
 }
+export function arrayFindObjectById(array,id){
+    return array.find((element) => element.id === id);
+}
+export function arrayCheckExitsObjectById(array,id){
+    return array.some((element) => element.id === id);
+}

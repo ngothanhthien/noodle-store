@@ -26,6 +26,8 @@ class StoreMealRequest extends FormRequest
         return [
             'price' => 'required',
             'name' => 'required',
+            'image' => 'required',
+            'type' => 'required',
         ];
     }
 }

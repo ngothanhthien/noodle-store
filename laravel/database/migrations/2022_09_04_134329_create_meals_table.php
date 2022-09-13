@@ -19,6 +19,8 @@ return new class extends Migration
             $table->integer('buy_amount')->default(0);
             $table->text('description')->nullable();
             $table->string('name',100);
+            $table->string('image',200);
+            $table->smallInteger('type');
             $table->timestamps();
         });
     }
