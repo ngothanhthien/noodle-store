@@ -5,11 +5,9 @@ import ButtonCreate from "../../components/ButtonCreate.vue";
 import ruleMap from "../../mapping/rule";
 import { addOrRemove,removeObjFromArrayById,arrayHasSubArray } from "../../logic/array";
 import { getAllStaffAPI, staffAPI } from "../../api";
-import { backToLogin } from "../../logic/auth";
 import Cookies from "js-cookie";
 import ButtonSoftDelete from "../../components/ButtonSoftDelete.vue";
 import ConfirmModal from "../../components/ConfirmModal.vue";
-import status from "../../mapping/status";
 import StaffCreateModal from "../../components/StaffCreateModal.vue";
 import InfoModal from "../../components/InfoModal.vue";
 const rulesFilter = ref([]);
@@ -46,9 +44,7 @@ async function confirmDelete(){
     });
     removeObjFromArrayById(staffs.value,staffId);
   } catch (error) {
-    if(error.response.status==status['unauthorized']){
-      backToLogin();
-    }
+    errorHandle(error.response.status, error);
   }
 }
 function showConfirmDelete(staff){
@@ -67,9 +63,7 @@ async function loadStaff(){
   });
   staffs.value = response.data.data;
   }catch(error){
-    if(error.response.status==status['unauthorized']){
-      backToLogin();
-    }
+    errorHandle(error.response.status, error);
   }
 }
 onMounted(() => {
@@ -101,7 +95,7 @@ function successCreateCb({username,password,user_info}){
   <div>
     <div class="flex items-center my-2">
       <div>Lọc chức vụ:</div>
-      <div v-for="(rule, index) in ruleMap" :class="rulesClass(index)"
+      <div :key="index" v-for="(rule, index) in ruleMap" :class="rulesClass(index)"
         class="ml-2 py-1 px-2 border border-green-700 cursor-pointer select-none" @click="toggleFilter(index)">
         {{ rule }}
       </div>
@@ -122,7 +116,7 @@ function successCreateCb({username,password,user_info}){
           <th>Trong ngày</th>
           <th>Trong tháng</th>
         </tr>
-        <tr v-for="staff in staffsFiltered">
+        <tr :key="staff.id" v-for="staff in staffsFiltered">
           <td>
             <div>{{staff.name!=null?staff.name:'Chưa có tên'}}</div>
             <div>{{staff.phone!=null?staff.phone:'Chưa có số'}}</div>
@@ -130,7 +124,7 @@ function successCreateCb({username,password,user_info}){
           <td class="text-center">{{staff.orders_today}}</td>
           <td class="text-center">{{staff.orders_this_month}}</td>
           <td class="divide-x-2 divide-gray-400 text-center">
-            <div class="inline-block p-1" v-if="staff.rules.length!=0" v-for="rule in staff.rules">
+            <div :key="rule.name+' - '+staff.id" class="inline-block p-1" v-if="staff.rules.length!=0" v-for="rule in staff.rules">
               {{ruleMap[rule.name]}}</div>
             <div class="inline-block p-1" v-else>Cơ bản</div>
           </td>

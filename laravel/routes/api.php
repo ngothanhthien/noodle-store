@@ -29,11 +29,17 @@ Route::middleware(['auth:sanctum', 'ability:admin,user'])->group(function(){
     Route::post('/customer',[CustomerController::class,'store']);
     Route::put('/customer/{customer}',[CustomerController::class,'update']);
     Route::post('/order',[OrderController::class,'store']);
-    Route::get('/order/{order}',[OrderController::class,'get']);
+    Route::get('/order/{id}',[OrderController::class,'get']);
+    Route::get('/order/phone/{phone}',[OrderController::class,'getByPhone']);
     Route::put('/order/{order}',[OrderController::class,'update']);
     Route::get('/meals/new',[MealController::class,'getNewMeal']);
     Route::get('/meals/best',[MealController::class,'getBestSellerMeal']);
     Route::get('/meals',[MealController::class,'getAll']);
+    Route::get('/orders/{state}',[OrderController::class,'getByState']);
+    Route::get('/orders',[OrderController::class,'getAll']);
+    Route::patch('/order/success/{order}',[OrderController::class,'success']);
+    Route::patch('/order/fail/{order}',[OrderController::class,'fail']);
+    Route::patch('/order/cancel/{order}',[OrderController::class,'cancel']);
 });
 Route::middleware(['auth:sanctum', 'ability:admin,staff-manage'])->group(function(){
     Route::post('/user',[UserController::class,'store']);
@@ -50,5 +56,5 @@ Route::middleware(['auth:sanctum', 'ability:admin,customer-manage'])->group(func
     Route::get('/customers',[CustomerController::class,'getAll']);
 });
 Route::middleware(['auth:sanctum', 'ability:admin,order-manage'])->group(function(){
-    Route::get('/orders',[OrderController::class,'getAll']);
+    Route::delete('/order/{order}',[OrderController::class,'destroy']);
 });

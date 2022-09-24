@@ -45,6 +45,11 @@ const routes=[
         name:'Order Create',
         component: ()=>import('../views/Dashboard/OrderCreateView.vue'),
         beforeEnter: checkLogged,
+      },
+      {
+        path:'/order/manage',
+        name:'Order Manage',
+        component: ()=>import('../views/Dashboard/OrderManageView.vue'),
       }
     ],
   },

@@ -9,8 +9,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import {staffAPI} from '../api';
 import validate from '../validate/staff';
-import status from '../mapping/status';
-import { backToLogin } from '../logic/auth';
+import errorHandle from '../logic/errorHandle';
 const emits= defineEmits(['outside','close','successCb']);
 const token=Cookies.get('User Token');
 const form = reactive({
@@ -40,9 +39,7 @@ async function onSubmit(){
         });
         emits('successCb',response.data);
     }catch(e){
-        if(e.response.status==status['unauthorized']){
-            backToLogin();
-        }
+        errorHandle(e.response.status,e);
         buttonNotSubmit();
         return;
     }

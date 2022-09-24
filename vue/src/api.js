@@ -6,4 +6,11 @@ export const getAllStaffAPI=server+"/users"; //get
 export const staffAPI=server+"/user"; //delete +id,post
 export const getAllMealAPI=server+"/meals"; //get
 export const getCustomerByPhone=server+"/customer";//get
-export const orderAPI=server+"/order"; //post
+export const getOrders=server+"/orders/"; //get +state
+export const orderAPI=server+"/order/"; //post, get+id,
+export const orderStateChange=
+{
+    success: server+"/order/success/",
+    fail:   server+"/order/fail/",
+    cancel:   server+"/order/cancel/",
+}; //patch+id

@@ -14,7 +14,4 @@ class Meal extends Model
     const TYPE_DRINK=1;
     const TYPE_MAIN=0;
     public $fillable=['name','price','description','image','type'];
-    public function materials(){
-        return $this->belongsToMany(Material::class,'recipes');
-    }
 }

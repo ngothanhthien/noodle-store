@@ -17,7 +17,7 @@ const totalPrice = computed(() => {
         </div>
         <div class="ml-2">
             <div> 
-                {{item.title}}
+                {{item.name}}
             </div>
             <div class="text-red-600"> 
                 {{totalPrice}}

@@ -2,7 +2,6 @@
 import { computed, onMounted, ref } from 'vue';
 import MealCard from '../../components/MealCard.vue';
 import { arrayFindObjectById } from '../../logic/array'
-import CheckBox from '../../components/CheckBox.vue';
 import mealTypes from '../../mapping/type';
 import ShoppingCartIcon from '../../components/icons/ShoppingCartIcon.vue';
 import { numberToMoney } from '../../logic/money'
@@ -11,13 +10,12 @@ import { onClickOutside } from '@vueuse/core';
 import {getAllMealAPI,orderAPI,getCustomerByPhone} from '../../api';
 import {backToLogin, getUserToken} from '../../logic/auth';
 import axios from 'axios';
-import status from '../../mapping/status'
 import InfoModal from '../../components/InfoModal.vue';
 import paymentGateMapping from '../../mapping/paymentGate';
 import validateOrder from '../../validate/order';
-const DEFAULT_FILTER_TYPE = -1;
+import FilterContainer from '../../components/FilterContainer.vue';
 const meals = ref([]);
-const filterType = ref(DEFAULT_FILTER_TYPE);
+const filterType = ref(null);
 const mealSearchBar = ref('');
 const inCart = ref({});
 const cartDetailVisible = ref(false);
@@ -43,14 +41,12 @@ onMounted(async () => {
             },
         });
         meals.value=response.data.meals;
-    }catch(e){
-        if(e.response.status==status['unauthorized']){
-            backToLogin();
-        }
+    }catch(error){
+        errorHandle(error.response.status, error);
     }
 })
 const filteredMeal = computed(() => {
-    if (filterType.value == DEFAULT_FILTER_TYPE) {
+    if (filterType.value == null) {
         if(mealSearchBar.value.length<3){
             return meals.value;
         }
@@ -109,10 +105,8 @@ async function createOrder() {
             }
         });
         afterCreatedOrder();
-    }catch(e){
-        if(e.response.status==status['unauthorized']){
-            backToLogin();
-        }
+    }catch(error){
+        errorHandle(error.response.status, error);
     }
     createOrderButtonEnable();
 }
@@ -186,7 +180,8 @@ async function findCustomer(){
             address.value=customer.address;
         }catch(e){
             console.log(e);
-            if(e.response.error==status['unauthorized']){
+            if(e.response.error==status['unauthorized']
+            ||e.response.error==status['forbidden']) {
                 backToLogin();
             }
         }
@@ -201,18 +196,9 @@ async function findCustomer(){
                 class="w-full outline-none px-2 py-1 rounded outline-green-700 outline-offset-0"
                 placeholder="Tên sản phẩm...">
         </div>
-        <div class="flex items-center">
-            <div class="px-2 flex">
-                <CheckBox @check="addTypeToFilter(DEFAULT_FILTER_TYPE)" :isChecked="filterType==DEFAULT_FILTER_TYPE"
-                    class="rounded">Tất cả</CheckBox>
-                <div v-for="(typeName,typeID) in mealTypes">
-                    <CheckBox @check="addTypeToFilter(typeID)" :isChecked="filterType==typeID" class="rounded">
-                        {{typeName}}</CheckBox>
-                </div>
-            </div>
-        </div>
+        <FilterContainer @changeFilter="addTypeToFilter" :currentFilter="filterType" :filterList="mealTypes"></FilterContainer>
         <div class="flex flex-wrap grow">
-            <div class="w-1/5 px-2 py-2" v-for="meal in filteredMeal">
+            <div class="w-1/5 px-2 py-2" :key="meal.id" v-for="meal in filteredMeal">
                 <MealCard :quality="inCart[meal.id]?inCart[meal.id].quality:0" @imageClicked="increaseMeal(meal.id)"
                     @increase="increaseMeal(meal.id)" @decrease="decreaseMeal(meal.id)" :meal="meal"></MealCard>
             </div>
@@ -225,7 +211,7 @@ async function findCustomer(){
                 class="h-full bg-white rounded-t-lg">
                 <div v-if="cartDetailVisible" class="h-[calc(100%-3rem)] border-b px-3 py-2">
                     <div class="overflow-y-auto h-[calc(100%-9.5rem)]">
-                        <div v-for="(item,id) in inCart">
+                        <div :key="id" v-for="(item,id) in inCart">
                             <CartItem @increase="increaseMeal(id)" @decrease="decreaseMeal(id)" :item="item"></CartItem>
                         </div>
                     </div>
@@ -244,7 +230,7 @@ async function findCustomer(){
                             <div class="grow overflow-hidden max-w-[600px]"><input ref="addressElement" placeholder="Nhập số điện thoại trước!" disabled @focus="orderError=''" v-model="address" class="w-full py-1 px-2 ml-2 outline-none  disabled:bg-slate-100" id="address" type="text"></div>
                         </div>
                         <div class="flex mt-2 mx-2">
-                            <label class="flex items-center mr-3 cursor-pointer" v-for="(name,key) in paymentGateMapping">
+                            <label class="flex items-center mr-3 cursor-pointer" :key="key" v-for="(name,key) in paymentGateMapping">
                                 <input v-model="payment_gate" class="mt-1" name="payment" type="radio" :value="key">
                                 <div class="ml-0.5">{{name}}</div>
                             </label>
