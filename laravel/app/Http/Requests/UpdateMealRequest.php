@@ -26,7 +26,7 @@ class UpdateMealRequest extends FormRequest
         return [
             'price' => 'required',
             'name' => 'required',
-            'description' => 'required',
+            'type' => 'required',
         ];
     }
 }

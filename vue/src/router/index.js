@@ -50,6 +50,11 @@ const routes=[
         path:'/order/manage',
         name:'Order Manage',
         component: ()=>import('../views/Dashboard/OrderManageView.vue'),
+      },
+      {
+        path:'/meal/manage',
+        name:'Meal Manage',
+        component: ()=>import('../views/Dashboard/MealManageView.vue'),
       }
     ],
   },

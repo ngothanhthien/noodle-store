@@ -14,3 +14,4 @@ export const orderStateChange=
     fail:   server+"/order/fail/",
     cancel:   server+"/order/cancel/",
 }; //patch+id
+export const mealAPI=server+"/meal";//post

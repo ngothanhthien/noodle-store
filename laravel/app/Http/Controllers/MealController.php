@@ -27,14 +27,14 @@ class MealController extends Controller
     public function update(UpdateMealRequest $request,Meal $meal){
         try{
             $meal->update($request->validated());
-            return response(['message'=>'success'],config('apistatus.ok'));
+            return response(['meal'=>$meal],config('apistatus.ok'));
         }catch(Exception $e){
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
         }
     }
     public function getAll(){
         try{
-            $meals=Meal::all();
+            $meals=Meal::latest()->get();
             return response(['meals'=>MealResource::collection($meals)],config('apistatus.ok'));
         }catch(Exception $e){
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));

@@ -1,12 +1,14 @@
 <script setup>
 import { ref } from "vue";
 import GroupIcon from "../components/icons/GroupIcon.vue";
+import RamenDinningIcon from "../components/icons/RamenDinningIcon.vue";
 import ShoppingCartIcon from "../components/icons/ShoppingCartIcon.vue";
 import Logout from "../components/Logout.vue";
 import SidebarItem from "../components/SidebarItem.vue";
 import SideBarItemExpand from "../components/SideBarItemExpand.vue";
 import SidebarSubItem from "../components/SidebarSubItem.vue";
 const orderExpand=ref(false);
+const mealExpand=ref(false);
 </script>
 
 <template>
@@ -19,6 +21,7 @@ const orderExpand=ref(false);
           <SidebarSubItem title="Tạo đơn" target="Order Create"/>
           <SidebarSubItem title="Xử lý đơn" target="Order Manage" />
         </SideBarItemExpand>
+        <SidebarItem :icon="RamenDinningIcon" title="Quản lý món ăn" target="Meal Manage" />
       </div>
     </div>
     <div class="w-full bg-slate-100 py-2 px-4 relative">

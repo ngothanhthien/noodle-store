@@ -8,7 +8,8 @@ import { numberToMoney } from '../../logic/money'
 import CartItem from '../../components/CartItem.vue';
 import { onClickOutside } from '@vueuse/core';
 import {getAllMealAPI,orderAPI,getCustomerByPhone} from '../../api';
-import {backToLogin, getUserToken} from '../../logic/auth';
+import {getUserToken} from '../../logic/auth';
+import errorHandle from '../../logic/errorHandle';
 import axios from 'axios';
 import InfoModal from '../../components/InfoModal.vue';
 import paymentGateMapping from '../../mapping/paymentGate';
@@ -179,11 +180,7 @@ async function findCustomer(){
             input.placeholder='';
             address.value=customer.address;
         }catch(e){
-            console.log(e);
-            if(e.response.error==status['unauthorized']
-            ||e.response.error==status['forbidden']) {
-                backToLogin();
-            }
+            errorHandle(e.response.status, e);
         }
     }
 }
