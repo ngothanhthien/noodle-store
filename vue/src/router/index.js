@@ -61,6 +61,11 @@ const routes=[
   {
     path:'/test',
     component: ()=>import('../views/TestView.vue')
+  },
+  {
+    path:'/admin',
+    name:'Admin Login',
+    component: ()=>import('../views/AdminLoginView.vue'),
   }
 ]
 const router = createRouter({
