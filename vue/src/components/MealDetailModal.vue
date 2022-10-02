@@ -83,7 +83,7 @@ function moneyConvertToNumber(){
     form.price=moneyToNumber(form.price);
 }
 function numberConvertToMoney(){
-    form.price=numberToMoney(form.price);
+    form.price=numberToMoney(form.price); 
 }
 </script>
         

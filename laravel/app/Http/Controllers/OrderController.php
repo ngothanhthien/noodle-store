@@ -83,19 +83,25 @@ class OrderController extends Controller
     public function update(OrderUpdateRequest $request,Order $order){
         DB::beginTransaction();
         try{
-            $user=$request->user();
-
-            Customer::where('customer_id',$request->customer_id)->update(['address'=>$request->address]);
-            if(!$user->tokenCan('admin')){
-                $order->user_id=$user->id;
-            }
             $order->state=$request->state;
             $order->payment_gate=$request->payment_gate;
             $order->total_price=$this->totalPrice($request->meals);
-            $order->save();
-            
             $order->meals()->sync($request->meals);
-
+            if($order->isDirty('state')){
+                if($order->state==Order::STATE_SUCCESS){
+                    foreach($order->meals as $meal){
+                        $meal->buy_amount+=$meal->pivot->quality;
+                        $meal->save();
+                    }
+                }
+                if($order->getOriginal('state')==Order::STATE_SUCCESS){
+                    foreach($order->meals as $meal){
+                        $meal->buy_amount-=$meal->pivot->quality;
+                        $meal->save();
+                    }
+                }
+            }
+            $order->save();
             DB::commit();
             return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){

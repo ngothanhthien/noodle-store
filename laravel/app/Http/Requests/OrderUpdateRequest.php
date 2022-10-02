@@ -24,8 +24,6 @@ class OrderUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'address' =>'required',
-            'customer_id' =>'required',
             'meals' => 'required',
             'payment_gate' => 'required',
             'state' => 'required',

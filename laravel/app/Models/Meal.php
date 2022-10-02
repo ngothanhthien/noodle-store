@@ -14,4 +14,7 @@ class Meal extends Model
     const TYPE_DRINK=1;
     const TYPE_MAIN=0;
     public $fillable=['name','price','description','image','type'];
+    public function orders(){
+        $this->belongsToMany(Order::class,'order_details')->withPivot('quality','price');
+    }
 }
