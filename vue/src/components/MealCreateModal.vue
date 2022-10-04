@@ -1,6 +1,6 @@
 <script setup>
 import { onClickOutside } from '@vueuse/core';
-import { reactive, ref, unref } from 'vue';
+import { reactive, ref } from 'vue';
 import ButtonClose from './ButtonClose.vue';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -9,6 +9,7 @@ import validate from '../validate/meal';
 import errorHandle from '../logic/errorHandle';
 import AddIcon from './icons/AddIcon.vue';
 import tagMapping from '../mapping/type'
+import ErrorDisplay from './ErrorDisplay.vue';
 const emits = defineEmits(['outside', 'close', 'successCb']);
 const token = Cookies.get('User Token');
 const form = reactive({
@@ -26,12 +27,6 @@ async function onSubmit() {
     buttonSubmitting();
     try {
         validate(form);
-    } catch (e) {
-        error.value = e;
-        buttonNotSubmit();
-        return;
-    }
-    try {
         const formData=new FormData();
         formData.append('image', image.value.files[0]);
         formData.append('name',form.name);
@@ -47,11 +42,15 @@ async function onSubmit() {
                 'Content-Type': 'Multipart/form-data'
             }
         });
+        buttonNotSubmit();
         emits('successCb', response.data);
     } catch (e) {
-        errorHandle(e.response.status, e);
         buttonNotSubmit();
-        return;
+        error.value=e;
+        if(e.response){
+            errorHandle(e.response.status, e);
+            return;
+        }
     }
 }
 const box = ref(null);
@@ -79,8 +78,8 @@ function imagePreview(e){
         <div ref="box" class="w-3/4 bg-gray-200 inline-block px-3 py-2 relative">
             <ButtonClose @close="emits('close')"></ButtonClose>
             <div class="text-xl">Tạo món</div>
-            <div class="text-red-600">{{error}}</div>
-            <form @submit.prevent="onSubmit" class="mt-5">
+            <ErrorDisplay :error="error" class="mt-9"></ErrorDisplay>
+            <form @submit.prevent="onSubmit" class="mt-7">
                 <div class="flex">
                     <div class="w-1/2 p-2 h-96 overflow-hidden">
                         <input @change="imagePreview" ref="image" type="file" class="hidden" id="imageUpload">

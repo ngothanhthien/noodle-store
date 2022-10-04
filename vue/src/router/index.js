@@ -55,6 +55,16 @@ const routes=[
         path:'/meal/manage',
         name:'Meal Manage',
         component: ()=>import('../views/Dashboard/MealManageView.vue'),
+      },
+      {
+        path:'/setting/change-password',
+        name:'Change Password',
+        component:()=>import('../views/Dashboard/ChangePasswordView.vue'),
+      },
+      {
+        path:'/setting/change-info',
+        name:'Change Info',
+        component:()=>import('../views/Dashboard/ChangeInfoView.vue'),
       }
     ],
   },

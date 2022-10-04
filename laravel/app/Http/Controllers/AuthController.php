@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Resources\StaffResource;
 use App\Models\Admin;
@@ -25,6 +26,16 @@ class AuthController extends Controller
                 'token'=>$this->issueUserToken($user),
             ]
             ,config('apistatus.ok'));
+    }
+    public function changePassword(ChangePasswordRequest $request){
+        $user=$request->user();
+        if(!Hash::check($request->oldPassword,$user->password)){
+            return response(['errors'=>'Wrong old password'],config('apistatus.loginFailed'));
+        }
+        $user->password = $request->newPassword;
+        $user->save();
+        $user->tokens()->delete();
+        return response(['message'=>'Success'],config('apistatus.ok'));
     }
     public function logout(Request $request){
         $request->user()->tokens()->delete();

@@ -10,9 +10,11 @@ import ButtonSoftDelete from "../../components/ButtonSoftDelete.vue";
 import ConfirmModal from "../../components/ConfirmModal.vue";
 import StaffCreateModal from "../../components/StaffCreateModal.vue";
 import InfoModal from "../../components/InfoModal.vue";
+import LoadingElement from "../../components/LoadingElement.vue";
 const rulesFilter = ref([]);
 const staffs = ref([]);
 const search=ref('');
+const isLoadingStaffs=ref(true);
 const staffsFiltered=computed(()=>{
   return staffs.value.filter((staff)=>
   staff.name.toLowerCase().includes(search.value.toLowerCase())
@@ -61,6 +63,7 @@ async function loadStaff(){
       'Authorization': 'Bearer ' + token,
     }
   });
+  isLoadingStaffs.value=false;
   staffs.value = response.data.data;
   }catch(error){
     errorHandle(error.response.status, error);
@@ -116,6 +119,7 @@ function successCreateCb({username,password,user_info}){
           <th>Trong ngày</th>
           <th>Trong tháng</th>
         </tr>
+        <LoadingElement v-if="isLoadingStaffs" />
         <tr :key="staff.id" v-for="staff in staffsFiltered">
           <td>
             <div>{{staff.name!=null?staff.name:'Chưa có tên'}}</div>

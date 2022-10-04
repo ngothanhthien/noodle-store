@@ -207,7 +207,7 @@ function search() {
                     </tr>
                 </table>
             </div>
-            <PaginateContainer @pageClicked="changePage" :currentPage="paginate.currentPage"
+            <PaginateContainer v-if="!isLoadingOrder" @pageClicked="changePage" :currentPage="paginate.currentPage"
                 :totalPage="paginate.totalPage">
             </PaginateContainer>
         </div>

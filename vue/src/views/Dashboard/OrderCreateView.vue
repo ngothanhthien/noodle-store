@@ -15,6 +15,8 @@ import InfoModal from '../../components/InfoModal.vue';
 import paymentGateMapping from '../../mapping/paymentGate';
 import validateOrder from '../../validate/order';
 import FilterContainer from '../../components/FilterContainer.vue';
+import LoadingElement from '../../components/LoadingElement.vue';
+import ErrorDisplay from '../../components/ErrorDisplay.vue';
 const meals = ref([]);
 const filterType = ref(null);
 const mealSearchBar = ref('');
@@ -29,6 +31,7 @@ const orderCreatedMessageVisible=ref(false);
 const orderError=ref('');
 const createOrderButton=ref(null);
 const addressElement=ref(null);
+const isLoadingMeals=ref(true);
 onClickOutside(cartDetailElement, () => {
     cartDetailVisible.value = false;
 })
@@ -41,6 +44,7 @@ onMounted(async () => {
                 'Authorization': 'Bearer '+token
             },
         });
+        isLoadingMeals.value=false;
         meals.value=response.data.meals;
     }catch(error){
         errorHandle(error.response.status, error);
@@ -194,6 +198,7 @@ async function findCustomer(){
                 placeholder="Tên sản phẩm...">
         </div>
         <FilterContainer @changeFilter="addTypeToFilter" :currentFilter="filterType" :filterList="mealTypes"></FilterContainer>
+        <LoadingElement v-if="isLoadingMeals" class="mt-8 ml-3" />
         <div class="flex flex-wrap grow">
             <div class="w-1/5 px-2 py-2" :key="meal.id" v-for="meal in filteredMeal">
                 <MealCard :quality="inCart[meal.id]?inCart[meal.id].quality:0" @imageClicked="increaseMeal(meal.id)"
@@ -212,8 +217,8 @@ async function findCustomer(){
                             <CartItem @increase="increaseMeal(id)" @decrease="decreaseMeal(id)" :item="item"></CartItem>
                         </div>
                     </div>
-                    <div class="bg-green-100 h-40 flex flex-col justify-center">
-                        <div v-if="orderError!=''" class="h-8 flex items-center mx-2 text-red-600">{{orderError}}</div>
+                    <div class="bg-green-100 h-40 flex flex-col justify-center relative pt-3">
+                        <ErrorDisplay :error="orderError" class="ml-2 mt-1"></ErrorDisplay>
                         <div class="flex items-center mx-2 mb-2">
                             <div class="w-28">
                                 <label for="phone">Số điện thoại:</label>

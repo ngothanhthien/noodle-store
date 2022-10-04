@@ -10,12 +10,14 @@ import FilterContainer from '../../components/FilterContainer.vue';
 import ButtonCreate from '../../components/ButtonCreate.vue';
 import MealCreateModal from '../../components/MealCreateModal.vue';
 import MealDetailModal from '../../components/MealDetailModal.vue';
+import LoadingElement from '../../components/LoadingElement.vue';
 const meals = ref([]);
 const filterType = ref(null);
 const mealSearchBar = ref('');
 const token = getUserToken();
 const mealCreateVisible = ref(false);
 const mealDetail=ref(null);
+const isLoadingMeals=ref(true);
 onMounted(async () => {
     try {
         const response = await axios({
@@ -25,6 +27,7 @@ onMounted(async () => {
                 'Authorization': 'Bearer ' + token
             },
         });
+        isLoadingMeals.value=false;
         meals.value = response.data.meals;
     } catch (error) {
         errorHandle(error.response.status, error);
@@ -74,6 +77,7 @@ function successEditMeal({meal}) {
         </div>
         <FilterContainer @changeFilter="addTypeToFilter" :currentFilter="filterType" :filterList="mealTypes">
         </FilterContainer>
+        <LoadingElement v-if="isLoadingMeals" class="mt-2 ml-1" />
         <div class="flex flex-wrap grow">
             <div class="w-1/5 px-2 py-2" :key="meal.id" v-for="meal in filteredMeal">
                 <MealViewCard @click="editMeal(meal)" :meal="meal"></MealViewCard>

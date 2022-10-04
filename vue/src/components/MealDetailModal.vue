@@ -9,6 +9,7 @@ import validate from '../validate/meal';
 import errorHandle from '../logic/errorHandle';
 import tagMapping from '../mapping/type';
 import {moneyToNumber, numberToMoney} from '../logic/money';
+import ErrorDisplay from './ErrorDisplay.vue';
 const emits = defineEmits(['outside', 'close', 'successCb']);
 const token = Cookies.get('User Token');
 const props = defineProps(['meal']);
@@ -22,17 +23,11 @@ const image = ref(null);
 const imagePreviewElement = ref(null);
 const isImagePreUpload = ref(false);
 const submitButton = ref(null);
-const error = ref(null);
+const error = ref('');
 async function onSubmit() {
     buttonSubmitting();
     try {
         validate(form);
-    } catch (e) {
-        error.value = e;
-        buttonNotSubmit();
-        return;
-    }
-    try {
         const formData = new FormData();
         if(image.value.files[0]){
             formData.append('image', image.value.files[0]);
@@ -53,11 +48,15 @@ async function onSubmit() {
                 'Content-Type': 'Multipart/form-data'
             }
         });
+        buttonNotSubmit();
         emits('successCb', response.data);
     } catch (e) {
-        errorHandle(e.response.status, e);
         buttonNotSubmit();
-        return;
+        if(e.response){
+            errorHandle(e.response.status, e);
+            return;
+        }
+        error.value=e;
     }
 }
 const box = ref(null);
@@ -92,8 +91,8 @@ function numberConvertToMoney(){
         <div ref="box" class="w-3/4 bg-gray-200 inline-block px-3 py-2 relative">
             <ButtonClose @close="emits('close')"></ButtonClose>
             <div class="text-xl">Chỉnh sửa</div>
-            <div class="text-red-600">{{error}}</div>
-            <form @submit.prevent="onSubmit" class="mt-5">
+            <ErrorDisplay :error="error" class="mt-9"></ErrorDisplay>
+            <form @submit.prevent="onSubmit" class="mt-6">
                 <div class="flex">
                     <div class="w-1/3 p-2 h-96 overflow-hidden">
                         <input @change="imagePreview" ref="image" type="file" class="hidden" id="imageUpload">

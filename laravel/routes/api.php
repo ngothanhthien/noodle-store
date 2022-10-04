@@ -24,6 +24,7 @@ Route::post('/user/login',[AuthController::class,'userLogin']);
 Route::middleware(['auth:sanctum', 'ability:admin,user'])->group(function(){
     Route::get('/logout',[AuthController::class,'logout']);
     Route::get('/me',[AuthController::class,'getUserByToken']);
+    Route::patch('/change-password',[AuthController::class,'changePassword']);
     Route::patch('/user/{user}/phone',[UserController::class,'changePhone']);
     Route::get('/customer',[CustomerController::class,'get']);
     Route::post('/customer',[CustomerController::class,'store']);
