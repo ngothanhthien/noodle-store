@@ -3,7 +3,7 @@ import axios from 'axios';
 import { reactive, ref, unref } from 'vue';
 import validate from '../../validate/changePassword'
 import {changePasswordAPI} from '../../api'
-import { getUserToken } from '../../logic/auth';
+import { backToLogin, getUserToken } from '../../logic/auth';
 import ErrorDisplay from '../../components/ErrorDisplay.vue';
 const buttonSubmit=ref(null);
 const error=ref('');
@@ -26,6 +26,7 @@ async function submitForm(){
             data: unref(form)
         })
         buttonNormal();
+        backToLogin();
     }catch(e){
         buttonNormal();
         if(e.response){

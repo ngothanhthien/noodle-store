@@ -65,6 +65,11 @@ const routes=[
         path:'/setting/change-info',
         name:'Change Info',
         component:()=>import('../views/Dashboard/ChangeInfoView.vue'),
+      },
+      {
+        path:'/customers',
+        name:'Customer View',
+        component:()=>import('../views/Dashboard/CustomerView.vue'),
       }
     ],
   },

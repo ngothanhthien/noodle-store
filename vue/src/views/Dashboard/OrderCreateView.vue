@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, reactive, ref,unref } from 'vue';
 import MealCard from '../../components/MealCard.vue';
 import { arrayFindObjectById } from '../../logic/array'
 import mealTypes from '../../mapping/type';
@@ -24,9 +24,11 @@ const inCart = ref({});
 const cartDetailVisible = ref(false);
 const cartDetailElement = ref(null);
 const token=getUserToken();
-const phone=ref('');
-const address=ref('');
-const payment_gate=ref('');
+const form=reactive({
+    address:'',
+    payment_gate:'',
+    phone:'',
+});
 const orderCreatedMessageVisible=ref(false);
 const orderError=ref('');
 const createOrderButton=ref(null);
@@ -79,48 +81,47 @@ const totalPrice = computed(() => {
 async function createOrder() {
     createOrderButtonDisable();
     try{
-        validateOrder(address.value,phone.value,payment_gate.value);
-    }catch(e) {
-        orderError.value=e;
-        createOrderButtonEnable();
-    }
-    const meals={};
-    Object.values(inCart.value).forEach((meal) => {
-        meals[meal.id]={
-            "quality":meal.quality
-        };
-    })
-    try{
-        const form={
-            "payment_gate":payment_gate.value,
+        validateOrder(unref(form));
+        const meals={};
+        Object.values(inCart.value).forEach((meal) => {
+            meals[meal.id]={
+                "quality":meal.quality
+            };
+        })
+        const data={
+            "payment_gate":form.payment_gate,
             "meals":meals,
         };
-        if(phone.value!=''){
-            form['phone']=phone.value;
+        if(form.phone!=''){
+            data['phone']=form.phone;
         }
-        if(address.value!=''){
-            form['address']=address.value;
+        if(form.address!=''){
+            data['address']=form.address;
         }
         await axios({
             method:"POST",
             url:orderAPI,
-            data:form,
+            data:data,
             headers:{
                 "Authorization": "Bearer " + token,
             }
         });
         afterCreatedOrder();
-    }catch(error){
-        errorHandle(error.response.status, error);
+    }catch(e){
+        if(e.response){
+            errorHandle(e.response.status, e);
+            return;
+        }
+        orderError.value=e;
+        createOrderButtonEnable();
     }
-    createOrderButtonEnable();
 }
 function afterCreatedOrder(){
     orderCreatedMessageVisible.value=true;
     inCart.value={};
-    phone.value='';
-    address.value='';
-    payment_gate.value='';
+    form.address='';
+    form.payment_gate='';
+    form.phone='';
     orderError.value='';
     cartDetailVisible.value=false;
     createOrderButtonEnable();
@@ -161,7 +162,7 @@ function createOrderButtonEnable(){
     button.contentText="Tạo đơn";
 }
 async function findCustomer(){
-    if(phone.value.length>=10){
+    if(form.phone.length>=10){
         const input=addressElement.value;
         input.placeholder="Đang tìm kiếm...";
         try{
@@ -169,7 +170,7 @@ async function findCustomer(){
                 method:"GET",
                 url:getCustomerByPhone,
                 params:{
-                    "phone": phone.value,
+                    "phone": form.phone,
                 },
                 headers:{
                     "Authorization": "Bearer " + token,
@@ -182,7 +183,7 @@ async function findCustomer(){
                 return
             }
             input.placeholder='';
-            address.value=customer.address;
+            form.address=customer.address;
         }catch(e){
             errorHandle(e.response.status, e);
         }
@@ -223,17 +224,17 @@ async function findCustomer(){
                             <div class="w-28">
                                 <label for="phone">Số điện thoại:</label>
                             </div>
-                            <div class="grow overflow-hidden max-w-[200px]"><input @keyup="findCustomer" @focus="orderError=''" v-model="phone" class="w-full py-1 px-2 ml-2 outline-none" id="phone" type="text"></div>
+                            <div class="grow overflow-hidden max-w-[200px]"><input @keyup="findCustomer" @focus="orderError=''" v-model="form.phone" class="w-full py-1 px-2 ml-2 outline-none" id="phone" type="text"></div>
                         </div>
                         <div class="flex items-center mx-2">
                             <div class="w-28">
                                 <label for="address">Địa chỉ:</label>
                             </div>
-                            <div class="grow overflow-hidden max-w-[600px]"><input ref="addressElement" placeholder="Nhập số điện thoại trước!" disabled @focus="orderError=''" v-model="address" class="w-full py-1 px-2 ml-2 outline-none  disabled:bg-slate-100" id="address" type="text"></div>
+                            <div class="grow overflow-hidden max-w-[600px]"><input ref="addressElement" placeholder="Nhập số điện thoại trước!" disabled @focus="orderError=''" v-model="form.address" class="w-full py-1 px-2 ml-2 outline-none  disabled:bg-slate-100" id="address" type="text"></div>
                         </div>
                         <div class="flex mt-2 mx-2">
                             <label class="flex items-center mr-3 cursor-pointer" :key="key" v-for="(name,key) in paymentGateMapping">
-                                <input v-model="payment_gate" class="mt-1" name="payment" type="radio" :value="key">
+                                <input v-model="form.payment_gate" class="mt-1" name="payment" type="radio" :value="key">
                                 <div class="ml-0.5">{{name}}</div>
                             </label>
                         </div>

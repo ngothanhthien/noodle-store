@@ -6,7 +6,7 @@ const props = defineProps(['meal','sold','tag']);
     
 <template>
     <div class="rounded-md cursor-pointer overflow-hidden shadow-md hover:shadow-xl transition duration-500 w-full group">
-        <div class="overflow-hidden">
+        <div class="overflow-hidden w-full">
             <img class="w-full duration-500 group-hover:scale-105 select-none transition" src="https://api.lorem.space/image/burger?w=200&h=200" alt="">
         </div>
         <div class="bg-white p-1">

@@ -4,9 +4,10 @@ export const adminLoginAPI=server+"/admin/login"; //post
 export const getInfoTokenAPI=server+"/me"; //get
 export const logoutAPI=server+"/logout"; //get
 export const getAllStaffAPI=server+"/users"; //get
-export const staffAPI=server+"/user"; //delete +id,post
+export const staffAPI=server+"/user"; //delete +id,post, get + id,PUT+id
 export const getAllMealAPI=server+"/meals"; //get
 export const getCustomerByPhone=server+"/customer";//get
+export const getAllCustomerAPI=server+"/customers";//get
 export const getOrders=server+"/orders/"; //get +state
 export const orderAPI=server+"/order/"; //post, get+id,
 export const orderStateChange=
@@ -15,5 +16,5 @@ export const orderStateChange=
     fail:   server+"/order/fail/",
     cancel:   server+"/order/cancel/",
 }; //patch+id
-export const mealAPI=server+"/meal";//post
+export const mealAPI=server+"/meal";//post,delete+id,put+id
 export const changePasswordAPI=server+"/change-password";//patch

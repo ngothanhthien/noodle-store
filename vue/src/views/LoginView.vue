@@ -6,6 +6,8 @@ import PersonIcon from "../components/icons/PersonIcon.vue";
 import LockIcon from "../components/icons/LockIcon.vue";
 import { loginAPI } from "../api";
 import validate from "../validate/login"
+import axios from "axios";
+import ErrorDisplay from "../components/ErrorDisplay.vue";
 const router = useRouter()
 const form = reactive({
   username: "",
@@ -17,12 +19,13 @@ const login = async (e) => {
   loginDisable(button);
   try {
     validate(unref(form));
-    const response = axios({
+    const response =await axios({
       url: loginAPI,
       method: "POST",
       data: unref(form),
     })
-    Cookies.set('User Token', response.token);
+    Cookies.set('User Token', response.data.token);
+    Cookies.set('User Info',JSON.stringify(response.data.user));
     router.push({ name: 'dashboard' });
   } catch (e) {
     loginEnable(button);
@@ -53,8 +56,8 @@ const loginEnable = (button) => {
       <div class="self-center mb-3 text-xl font-light text-gray-600 sm:text-2xl">
         Đăng nhập
       </div>
-      <div class="self-center text-red-500">{{ error }}</div>
-      <div class="mt-8">
+      <div class="pt-9 relative">
+        <ErrorDisplay :error="error" class="w-full text-center"></ErrorDisplay>
         <form @submit.prevent action="#" autoComplete="on">
           <div class="flex flex-col mb-2">
             <div class="flex relative">

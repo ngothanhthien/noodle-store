@@ -11,6 +11,7 @@ import ButtonCreate from '../../components/ButtonCreate.vue';
 import MealCreateModal from '../../components/MealCreateModal.vue';
 import MealDetailModal from '../../components/MealDetailModal.vue';
 import LoadingElement from '../../components/LoadingElement.vue';
+import {removeObjFromArrayById} from '../../logic/array'
 const meals = ref([]);
 const filterType = ref(null);
 const mealSearchBar = ref('');
@@ -18,6 +19,7 @@ const token = getUserToken();
 const mealCreateVisible = ref(false);
 const mealDetail=ref(null);
 const isLoadingMeals=ref(true);
+const updatedMealID=ref(null);
 onMounted(async () => {
     try {
         const response = await axios({
@@ -57,13 +59,19 @@ function editMeal(meal) {
 }
 function successCreateMeal({meal}) { 
     mealCreateVisible.value=false;
+    updatedMealID.value=meal.id;
     meal.buy_amount=0;
     meals.value.unshift(meal);
 }
 function successEditMeal({meal}) {
     mealDetail.value=null;
+    updatedMealID.value=meal.id;
     const foundIndex=meals.value.findIndex(obj=>obj.id==meal.id);
     meals.value[foundIndex] =meal;
+}
+function successDeleteMeal(id){
+    mealDetail.value=null;
+    removeObjFromArrayById(meals.value,id);
 }
 </script>
 <template>
@@ -80,11 +88,11 @@ function successEditMeal({meal}) {
         <LoadingElement v-if="isLoadingMeals" class="mt-2 ml-1" />
         <div class="flex flex-wrap grow">
             <div class="w-1/5 px-2 py-2" :key="meal.id" v-for="meal in filteredMeal">
-                <MealViewCard @click="editMeal(meal)" :meal="meal"></MealViewCard>
+                <MealViewCard :class="{'border-yellow-500 border-2':meal.id==updatedMealID}" @click="editMeal(meal)" :meal="meal"></MealViewCard>
             </div>
         </div>
         <MealCreateModal @close="mealCreateVisible=false" @outside="mealCreateVisible=false"
-            @successCb="successCreateMeal" v-if="mealCreateVisible"></MealCreateModal>
-        <MealDetailModal @successCb="successEditMeal" :meal="mealDetail" @close="mealDetail=null" @outside="mealDetail=null" v-if="mealDetail"></MealDetailModal>
+           @successCb="successCreateMeal" v-if="mealCreateVisible"></MealCreateModal>
+        <MealDetailModal  @successDelete="successDeleteMeal" @successCb="successEditMeal" :meal="mealDetail" @close="mealDetail=null" @outside="mealDetail=null" v-if="mealDetail"></MealDetailModal>
     </div>
 </template>

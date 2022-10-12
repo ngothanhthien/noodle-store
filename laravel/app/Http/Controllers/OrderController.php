@@ -9,47 +9,19 @@ use App\Http\Resources\OrderResource;
 use App\Models\Customer;
 use App\Models\Meal;
 use App\Models\Order;
+use App\Services\OrderService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
-    public function store(OrderStoreRequest $request){
-        $total_price=0;
-        $mealsInput=$request->meals;
-        foreach($mealsInput as $id=>$quality){
-            $meal=Meal::find($id);
-            if(!$meal){
-                return response(['errors'=>'Bad request'],config('apistatus.badRequest'));
-            }
-            $total_price += $meal->price*intval($quality);
-            $mealsInput[$id]['price']=$meal->price;
+    public function store(OrderStoreRequest $request,OrderService $orderService){
+        if($request->payment_gate==Order::PAYMENT_GATE_CALL&&(!$request->has('phone')||!$request->has('address'))){
+            return response(['errors'=>"Bad request"],config('apistatus.badRequest'));
         }
-        $state=Order::STATE_DELIVERY;
-        if($request->payment_gate==Order::PAYMENT_GATE_AT_SHOP
-        ||$request->payment_gate==Order::PAYMENT_GATE_TAKE_AWAY){
-            $state=Order::STATE_SUCCESS;
-        }
-        DB::beginTransaction();
-        try{
-            if($request->has('phone')&&$request->has('address')){
-                $customer=Customer::updateOrCreate(['phone'=>$request->phone],['address'=>$request->address]);
-            }
-            $order=Order::create([
-                'customer_id' => $request->has('phone')&&$request->has('address')?$customer->id:null,
-                'user_id' => $request->user()->id,
-                'state' => $state,
-                'payment_gate' =>$request->payment_gate,
-                'total_price' => $total_price,
-            ]);
-            $order->meals()->attach($mealsInput);
-            DB::commit();
-            return response(['message'=>'success'],config('apistatus.ok'));
-        }catch(Exception $e){
-            DB::rollBack();
-            return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
-        }
+        $orderService->create($request->input(),$request->user());
+        return response(['message'=>'success'], config('apistatus.ok'));
     }
     public function getAll(){
         try{
@@ -80,76 +52,40 @@ class OrderController extends Controller
         $customer=Customer::where('phone',$phone)->first();
         return $customer;
     }
-    public function update(OrderUpdateRequest $request,Order $order){
-        DB::beginTransaction();
-        try{
-            $order->state=$request->state;
-            $order->payment_gate=$request->payment_gate;
-            $order->total_price=$this->totalPrice($request->meals);
-            $order->meals()->sync($request->meals);
-            if($order->isDirty('state')){
-                if($order->state==Order::STATE_SUCCESS){
-                    foreach($order->meals as $meal){
-                        $meal->buy_amount+=$meal->pivot->quality;
-                        $meal->save();
-                    }
-                }
-                if($order->getOriginal('state')==Order::STATE_SUCCESS){
-                    foreach($order->meals as $meal){
-                        $meal->buy_amount-=$meal->pivot->quality;
-                        $meal->save();
-                    }
-                }
-            }
-            $order->save();
-            DB::commit();
-            return response(['message'=>'success'],config('apistatus.ok'));
-        }catch(Exception $e){
-            DB::rollBack();
-            return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
+    public function fail(Order $order,Request $request,OrderService $orderService){
+        if(!$this->validatedUser($request->user(),$order)){
+            return response(['errors'=>'Unauthorized'],config('apistatus.forbidden'));
         }
-    }
-    public function fail(Order $order,Request $request){
-        if($this->validatedUser($request->user(),$order)){
-            return response(['errors'=>'Unauthorized'],config('apistatus.unauthorized'));
-        }
-        if(!$order->state==Order::STATE_SUCCESS&&!$order->state==Order::STATE_DELIVERY){
+        if($order->state!=Order::STATE_SUCCESS&&$order->state!=Order::STATE_DELIVERY){
             return response(['errors'=>'Bad request'],config('apistatus.badRequest'));
         }
-        $order->state=Order::STATE_FAIL;
-        $order->save();
+        $orderService->setState(Order::STATE_FAIL,$order);
         return response($order,config('apistatus.ok'));
     }
-    public function success(Order $order,Request $request){
-        if($this->validatedUser($request->user(),$order)){
-            return response(['errors'=>'Unauthorized'],config('apistatus.unauthorized'));
+    public function success(Order $order,Request $request,OrderService $orderService){
+        if(!$this->validatedUser($request->user(),$order)){
+            return response(['errors'=>'Unauthorized'],config('apistatus.forbidden'));
         }
-        if(!$order->state==Order::STATE_DELIVERY){
+        if($order->state!=Order::STATE_DELIVERY){
             return response(['errors'=>'Bad request'],config('apistatus.badRequest'));
         }
-        $order->state=Order::STATE_SUCCESS;
-        $order->save();
+        $orderService->setState(Order::STATE_SUCCESS,$order);
         return response($order,config('apistatus.ok'));
     }
-    public function cancel(Order $order,Request $request){
-        if($this->validatedUser($request->user(),$order)){
-            return response(['errors'=>'Unauthorized'],config('apistatus.unauthorized'));
+    public function cancel(Order $order,Request $request,OrderService $orderService){
+        if(!$this->validatedUser($request->user(),$order)){
+            return response(['errors'=>'Unauthorized'],config('apistatus.forbidden'));
         }
-        $order->state=Order::STATE_CANCEL;
-        $order->save();
+        $orderService->setState(Order::STATE_CANCEL,$order);
         return response($order,config('apistatus.ok'));
     }
     private function validatedUser($user,$order){
-        if(!$user->tokenCan('admin')&&$user->id!=$order->user_id){
-            return false;
+        if($user->tokenCan('admin')){
+            return true;
         }
-        return true;
-    }
-    private function totalPrice($meals){
-        $total=0;
-        foreach($meals as $meal){
-            $total+=$meal['quality']*$meal['price'];
+        if($user->id==$order->user_id){
+            return true;
         }
-        return $total;
+        return false;
     }
 }

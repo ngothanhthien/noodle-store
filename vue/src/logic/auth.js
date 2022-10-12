@@ -6,3 +6,4 @@ export const backToLogin=()=>{
     router.push({name:'login'});
 }
 export const getUserToken=()=> Cookies.get('User Token');
+export const getUserInfo=()=> Cookies.get('User Info')?JSON.parse(Cookies.get('User Info')):undefined;

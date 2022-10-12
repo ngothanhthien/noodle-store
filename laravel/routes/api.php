@@ -25,14 +25,13 @@ Route::middleware(['auth:sanctum', 'ability:admin,user'])->group(function(){
     Route::get('/logout',[AuthController::class,'logout']);
     Route::get('/me',[AuthController::class,'getUserByToken']);
     Route::patch('/change-password',[AuthController::class,'changePassword']);
-    Route::patch('/user/{user}/phone',[UserController::class,'changePhone']);
+    Route::get('/user/{user}',[UserController::class,'get']);
     Route::get('/customer',[CustomerController::class,'get']);
     Route::post('/customer',[CustomerController::class,'store']);
     Route::put('/customer/{customer}',[CustomerController::class,'update']);
     Route::post('/order',[OrderController::class,'store']);
     Route::get('/order/{id}',[OrderController::class,'get']);
     Route::get('/order/phone/{phone}',[OrderController::class,'getByPhone']);
-    Route::put('/order/{order}',[OrderController::class,'update']);
     Route::get('/meals/new',[MealController::class,'getNewMeal']);
     Route::get('/meals/best',[MealController::class,'getBestSellerMeal']);
     Route::get('/meals',[MealController::class,'getAll']);
@@ -46,7 +45,7 @@ Route::middleware(['auth:sanctum', 'ability:admin,staff-manage'])->group(functio
     Route::post('/user',[UserController::class,'store']);
     Route::delete('/user/{user}',[UserController::class,'destroy']);
     Route::get('/users',[UserController::class,'getAll']);
-    Route::put('/user/{user}/rules',[UserController::class,'changeRule']);
+    Route::put('/user/{user}',[UserController::class,'update']);
 });
 Route::middleware(['auth:sanctum', 'ability:admin,meal-manage'])->group(function(){
     Route::post('/meal',[MealController::class,'store']);
@@ -55,6 +54,7 @@ Route::middleware(['auth:sanctum', 'ability:admin,meal-manage'])->group(function
 });
 Route::middleware(['auth:sanctum', 'ability:admin,customer-manage'])->group(function(){
     Route::get('/customers',[CustomerController::class,'getAll']);
+    Route::get('/customer/{customer}',[CustomerController::class,'getById']);
 });
 Route::middleware(['auth:sanctum', 'ability:admin,order-manage'])->group(function(){
     Route::delete('/order/{order}',[OrderController::class,'destroy']);

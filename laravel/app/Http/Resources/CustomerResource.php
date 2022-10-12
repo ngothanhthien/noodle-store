@@ -18,6 +18,8 @@ class CustomerResource extends JsonResource
             'id' => $this->id,
             'phone' => $this->phone,
             'address' => $this->address,
+            'purchased' => $this->purchased,
+            'last_bought' => date('d-m-Y h:ia', strtotime($this->created_at)),
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserStoreRequest;
+use App\Http\Requests\UserUpdateRequest;
 use App\Http\Resources\StaffResource;
 use App\Models\Rule;
 use App\Models\User;
@@ -48,47 +49,38 @@ class UserController extends Controller
         }
     }
     public function destroy(User $user,Request $request){
-        if($request->user()->id==$user->id){
+        if(!$request->user()->tokenCan('admin')&&$request->user()->id==$user->id){
             return response(['errors'=>'Bad Request'], config('apistatus.badRequest'));
         }
         $user->delete();
         return response(['message'=>'success'],config('apistatus.ok'));
     }
     public function getAll(){
-        
         return StaffResource::collection(User::withOrdersSummary()->with('rules')->latest()->get());
     }
-    public function changePhone(User $user,Request $request){
-        if(!$request->has('phone')){
-            return response(['errors'=>'Bad request'],config('apistatus.badRequest'));
-        }
-        $user->phone = $request->phone;
-        $user->save();
-        return response(['message'=>'success'],config('apistatus.ok'));
+    public function get(User $user){
+        $user->rules;
+        return new StaffResource($user);
     }
-    public function changeRule(User $user,Request $request){
-        if(!$request->has('rules')){
-            return response(['errors'=>'Bad request'],config('apistatus.badRequest'));
-        }
-        if(!is_array($request->rules)){
-            return response(['errors'=>'Bad request'],config('apistatus.badRequest'));
-        }
+    public function update(UserUpdateRequest $request,User $user){
         DB::beginTransaction();
         try{
-            $user->rules()->delete();
-            $id=$user->id;
+            $user->update($request->only(['name','phone']));
+            Rule::where('user_id',$user->id)->delete();
             $rules=[];
             foreach($request->rules as $rule){
-                array_push($rules,['user_id'=>$id,'name'=>$rule]);
+                array_push($rules,[
+                    'name'=>$rule,
+                    'user_id'=>$user->id
+                ]);
             }
             Rule::insert($rules);
-            $user->tokens()->delete();
             DB::commit();
-            return response(['message'=>'success'],config('apistatus.ok'));
         }catch(Exception $e){
             DB::rollBack();
             return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
-        }        
+        }
+        return response(['user'=>new StaffResource($user)],config('apistatus.ok'));
     }
     private function convertNameToUserName($str) {
         $str=strtolower($str);

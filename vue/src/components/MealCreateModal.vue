@@ -10,6 +10,7 @@ import errorHandle from '../logic/errorHandle';
 import AddIcon from './icons/AddIcon.vue';
 import tagMapping from '../mapping/type'
 import ErrorDisplay from './ErrorDisplay.vue';
+import {moneyToNumber, numberToMoney} from '../logic/money';
 const emits = defineEmits(['outside', 'close', 'successCb']);
 const token = Cookies.get('User Token');
 const form = reactive({
@@ -27,11 +28,14 @@ async function onSubmit() {
     buttonSubmitting();
     try {
         validate(form);
+        if(!image.value.files[0]){
+            throw "Cần có ảnh minh họa";
+        }
         const formData=new FormData();
         formData.append('image', image.value.files[0]);
         formData.append('name',form.name);
         formData.append('type', form.type);
-        formData.append('price', form.price);
+        formData.append('price', moneyToNumber(form.price));
         formData.append('description', form.description);
         const response = await axios({
             method: 'POST',
@@ -71,6 +75,13 @@ function imagePreview(e){
     preview.src= URL.createObjectURL(e.target.files[0]);
     isImagePreUpload.value=true;
 }
+function moneyConvertToNumber(){
+    error.value=null;
+    form.price=moneyToNumber(form.price);
+}
+function numberConvertToMoney(){
+    form.price=numberToMoney(form.price); 
+}
 </script>
     
 <template>
@@ -107,7 +118,7 @@ function imagePreview(e){
                                 <label class="pb-0.5 cursor-pointer" :for="'tag'+value">{{tag.name}}</label>
                             </div>
                         </div>
-                        <input @focus="clearError" v-model="form.price" class="p-2 bg-inherit outline-none" type="text" placeholder="Giá bán...">
+                        <input @focus="moneyConvertToNumber" @focusout="numberConvertToMoney" v-model="form.price" class="p-2 bg-inherit outline-none" type="text" placeholder="Giá bán...">
                         <textarea @focus="clearError" v-model="form.description" class="w-full resize-none h-32 outline-none bg-inherit p-2 mt-1" type="text" placeholder="Thông tin thêm..."></textarea>
                     </div>
                 </div>

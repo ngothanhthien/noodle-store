@@ -32,7 +32,7 @@ class AuthController extends Controller
         if(!Hash::check($request->oldPassword,$user->password)){
             return response(['errors'=>'Wrong old password'],config('apistatus.loginFailed'));
         }
-        $user->password = $request->newPassword;
+        $user->password = Hash::make($request->newPassword);
         $user->save();
         $user->tokens()->delete();
         return response(['message'=>'Success'],config('apistatus.ok'));

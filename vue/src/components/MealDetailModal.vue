@@ -10,7 +10,7 @@ import errorHandle from '../logic/errorHandle';
 import tagMapping from '../mapping/type';
 import {moneyToNumber, numberToMoney} from '../logic/money';
 import ErrorDisplay from './ErrorDisplay.vue';
-const emits = defineEmits(['outside', 'close', 'successCb']);
+const emits = defineEmits(['outside', 'close', 'successCb','successDelete']);
 const token = Cookies.get('User Token');
 const props = defineProps(['meal']);
 const form = reactive({
@@ -23,6 +23,7 @@ const image = ref(null);
 const imagePreviewElement = ref(null);
 const isImagePreUpload = ref(false);
 const submitButton = ref(null);
+const deleteButtonElement=ref(null);
 const error = ref('');
 async function onSubmit() {
     buttonSubmitting();
@@ -34,7 +35,7 @@ async function onSubmit() {
         }
         formData.append('name', form.name);
         formData.append('type', form.type);
-        formData.append('price', form.price);
+        formData.append('price', moneyToNumber(form.price));
         formData.append('_method','put')
         if(form.description){
             formData.append('description', form.description);
@@ -84,6 +85,30 @@ function moneyConvertToNumber(){
 function numberConvertToMoney(){
     form.price=numberToMoney(form.price); 
 }
+async function deleteMeal(){
+    deleteButtonElement.value.innerHTML="Đang xóa...";
+    deleteButtonElement.value.disabled=true;
+    try{
+        await axios({
+            method:'DELETE',
+            url:mealAPI+'/'+props.meal.id,
+            headers:{
+                'Authorization': 'Bearer '+token,
+            }
+        })
+        emits('successDelete',props.meal.id);
+        deleteButtonElement.value.innerHTML="Xóa món";
+        deleteButtonElement.value.disabled=false;
+    }catch(e){
+        if(e.response){
+            errorHandle(e.response.status, e);
+            return;
+        }
+        deleteButtonElement.value.innerHTML="Xóa món";
+        deleteButtonElement.value.disabled=false;
+        console.log(e);
+    }
+}
 </script>
         
 <template>
@@ -119,9 +144,12 @@ function numberConvertToMoney(){
                             placeholder="Thông tin thêm..."></textarea>
                     </div>
                 </div>
-                <div class="text-right p-1">
+                <div class="flex p-2 mt-1">
+                    <div ref="deleteButtonElement" @click="deleteMeal" class="text-white bg-red-600 p-2 w-24 text-center rounded hover:bg-red-500 disabled:bg-red-500 cursor-pointer">
+                        Xóa món
+                    </div>
                     <button ref="submitButton" type="submit"
-                        class="w-32 transition hover:bg-blue-600 disabled:bg-blue-500 bg-blue-700 text-white rounded p-2">
+                        class="ml-auto w-32 transition hover:bg-blue-600 disabled:bg-blue-500 bg-blue-700 text-white rounded p-2">
                         Lưu thay đổi
                     </button>
                 </div>

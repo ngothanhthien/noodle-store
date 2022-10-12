@@ -11,16 +11,19 @@ import { getUserToken } from '../../logic/auth';
 import axios from 'axios';
 import LoadingElement from '../../components/LoadingElement.vue';
 import errorHandle from '../../logic/errorHandle';
-import ButtonSoftDelete from '../../components/ButtonSoftDelete.vue';
-import ButtonVerify from '../../components/ButtonVerify.vue';
-import ButtonCancel from '../../components/ButtonCancel.vue';
 import OrderDetailsModal from '../../components/OrderDetailsModal.vue';
+import InfoModal from '../../components/InfoModal.vue';
+import OrderHandleButtons from '../../components/OrderHandleButtons.vue';
+const ORDER_SUCCESS = 0;
+const ORDER_DELIVERY = 1;
+const ORDER_FAIL = 2;
+const ORDER_CANCEL = 3;
 const SEARCH_BY_ID = 0;
 const SEARCH_BY_PHONE = 1;
 const searchType = ref(SEARCH_BY_ID);
 const token = getUserToken();
 const orderSearchBar = ref('');
-const orderFilter = ref(null);
+const orderFilter = ref(ORDER_DELIVERY.toString());
 const paginate = reactive({
     totalPage: 1,
     url: getOrders,
@@ -30,13 +33,14 @@ const orders = ref([]);
 const isLoadingOrder = ref(true);
 const isMovingPage = ref(false);
 const orderDetailID = ref(null);
+const isUnAuthorizeOrder = ref(false);
 onMounted(async () => {
     try {
         const response = await axios({
-            url: getOrders,
             method: "GET",
+            url: getOrders + ORDER_DELIVERY,
             headers: {
-                "Authorization": "Bearer " + token
+                'Authorization': 'Bearer ' + token
             }
         });
         orders.value = response.data.data;
@@ -44,6 +48,7 @@ onMounted(async () => {
         paginate.url = response.data.meta['path'];
         isLoadingOrder.value = false;
     } catch (error) {
+        console.log(error);
         errorHandle(error.response.status, error);
     }
 });
@@ -86,7 +91,13 @@ async function changePage(page) {
         orders.value = response.data.data;
         isMovingPage.value = false;
     } catch (error) {
-        errorHandle(error.response.status, error);
+        if (e.response) {
+            if (e.response.status == 403) {
+                isUnAuthorizeOrder.value = true;
+                return;
+            }
+            errorHandle(e.response.status, e);
+        }
     }
 }
 async function failOrder(id) {
@@ -98,10 +109,16 @@ async function failOrder(id) {
                 "Authorization": "Bearer " + token
             }
         });
-        const order=orders.value.find(obj=>obj.id==id);
-        order.state=2; //order success
+        const order = orders.value.find(obj => obj.id == id);
+        order.state = ORDER_FAIL;
     } catch (e) {
-        errorHandle(e.response.status, e);
+        if (e.response) {
+            if (e.response.status == 403) {
+                isUnAuthorizeOrder.value = true;
+                return;
+            }
+            errorHandle(e.response.status, e);
+        }
     }
 }
 async function verifyOrder(id) {
@@ -113,10 +130,16 @@ async function verifyOrder(id) {
                 "Authorization": "Bearer " + token
             }
         });
-        const order=orders.value.find(obj=>obj.id==id);
-        order.state=0; //order success
+        const order = orders.value.find(obj => obj.id == id);
+        order.state = ORDER_SUCCESS;
     } catch (e) {
-        errorHandle(e.response.status, e);
+        if (e.response) {
+            if (e.response.status == 403) {
+                isUnAuthorizeOrder.value = true;
+                return;
+            }
+            errorHandle(e.response.status, e);
+        }
     }
 }
 async function cancelOrder(id) {
@@ -128,10 +151,14 @@ async function cancelOrder(id) {
                 "Authorization": "Bearer " + token
             }
         });
-        const order=orders.value.find(obj=>obj.id==id);
-        order.state=3;
+        const order = orders.value.find(obj => obj.id == id);
+        order.state = 3;
     } catch (e) {
-        errorHandle(e.response.status, e);
+        if (e.response) {
+            if (e.response.status == 401) {
+                isUnAuthorizeOrder.value = true;
+            }
+        }
     }
 }
 function orderDetail(id) {
@@ -179,38 +206,42 @@ function search() {
                         <td class="text-center border-gray-400 border  cursor-pointer" @click="orderDetail(order.id)">
                             {{order.id}}</td>
                         <td class="text-center border-gray-400 border  cursor-pointer" @click="orderDetail(order.id)">
-                            <div>{{PaymentMap[order.state]}}</div>
+                            <div>{{PaymentMap[order.payment_gate]}}</div>
                             <div v-if="order.customer!=null">
                                 <div>{{order.customer.phone}}</div>
                                 <div>{{order.customer.address}}</div>
                             </div>
                         </td>
-                        <td class="text-center border-gray-400 border  cursor-pointer" @click="orderDetail(order.id)">
+                        <td class="text-center border-gray-400 border p-2 cursor-pointer"
+                            @click="orderDetail(order.id)">
                             {{numberToMoney(order.total_price)}}</td>
-                        <td class="text-center border-gray-400 border  cursor-pointer" @click="orderDetail(order.id)">
+                        <td class="text-center border-gray-400 border p-2 cursor-pointer"
+                            @click="orderDetail(order.id)">
                             <span class="mr-2">Tạo lúc:</span>
                             <span>{{order.created_at}}</span>
                         </td>
-                        <td class="text-center border-gray-400 border  cursor-pointer" @click="orderDetail(order.id)"
+                        <td class="text-center border-gray-400 border p-2 cursor-pointer" @click="orderDetail(order.id)"
                             :class="StateMap[order.state]['css']">
                             {{StateMap[order.state]['name']}}</td>
-                        <td class="border-gray-400 border">
-                            <div class="flex p-2 max-w-fit mx-auto">
-                                <ButtonVerify @click="verifyOrder(order.id)" class="w-7 h-7 inline-block mx-2">
-                                </ButtonVerify>
-                                <ButtonCancel @click="failOrder(order.id)" class="w-7 h-7 inline-block mx-2">
-                                </ButtonCancel>
-                                <ButtonSoftDelete @click="cancelOrder(order.id)" class="w-7 h-7 inline-block mx-2">
-                                </ButtonSoftDelete>
-                            </div>
+                        <td class="border-gray-400 border p-2">
+                            <OrderHandleButtons @cancel="cancelOrder(order.id)" @fail="failOrder(order.id)"
+                                @success="verifyOrder(order.id)" :state="order.state" class="mx-auto" />
                         </td>
                     </tr>
                 </table>
             </div>
             <PaginateContainer v-if="!isLoadingOrder" @pageClicked="changePage" :currentPage="paginate.currentPage"
-                :totalPage="paginate.totalPage">
-            </PaginateContainer>
+                :totalPage="paginate.totalPage" />
         </div>
     </div>
-    <OrderDetailsModal @close="orderDetailID=null" v-if="orderDetailID!=null" :id="orderDetailID"></OrderDetailsModal>
+    <InfoModal @close="isUnAuthorizeOrder=false" v-if="isUnAuthorizeOrder">
+        <template #content>
+            Bạn không phải người tạo đơn hàng này
+        </template>
+        <template #button>
+            Đã hiểu
+        </template>
+    </InfoModal>
+    <OrderDetailsModal @cancel="cancelOrder" @fail="failOrder" @success="verifyOrder" @close="orderDetailID=null"
+        v-if="orderDetailID!=null" :id="orderDetailID" />
 </template>

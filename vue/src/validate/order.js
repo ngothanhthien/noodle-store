@@ -1,8 +1,8 @@
-export default function (address,phone,payment){
-    if(payment==''){
+export default function ({address,phone,payment_gate}){
+    if(payment_gate==''){
         throw "Phải có phương thức mua";
     }
-    if(payment==2){//Đặt qua điện thoại
+    if(payment_gate==2){//Đặt qua điện thoại
         if(address==''||phone==''){
             throw "Khi mua qua điện thoại phải có địa chỉ và số điện thoại";
         }

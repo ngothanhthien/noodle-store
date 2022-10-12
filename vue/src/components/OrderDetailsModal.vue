@@ -6,29 +6,30 @@ import paymentGate from '../mapping/paymentGate';
 import { numberToMoney } from '../logic/money';
 import { onClickOutside } from '@vueuse/core';
 import LoadingElement from './LoadingElement.vue';
-import {orderAPI} from '../api'
-import {getUserToken} from '../logic/auth'
+import { orderAPI } from '../api'
+import { getUserToken } from '../logic/auth'
 import errorHandle from '../logic/errorHandle';
 import axios from 'axios';
-const token=getUserToken();
-const emits = defineEmits(['close']);
+import OrderHandleButtons from './OrderHandleButtons.vue';
+const token = getUserToken();
+const emits = defineEmits(['close', 'cancel', 'fail', 'success']);
 const props = defineProps(['id']);
 const box = ref(null);
 const order = ref(null);
-const orderDetailExits=ref(true)
+const orderDetailExits = ref(true)
 onMounted(async () => {
-    try{
-        const response=await axios({
-            method:'GET',
-            url:orderAPI+props.id,
-            headers:{
+    try {
+        const response = await axios({
+            method: 'GET',
+            url: orderAPI + props.id,
+            headers: {
                 "Authorization": "Bearer " + token,
             }
         });
-        order.value=response.data;
-    }catch(e){
+        order.value = response.data;
+    } catch (e) {
         errorHandle(e.response.status, e);
-        orderDetailExits.value=false;
+        orderDetailExits.value = false;
     }
 });
 const staff = computed(() => {
@@ -93,6 +94,15 @@ onClickOutside(box, () => {
                             </td>
                         </tr>
                     </table>
+                </div>
+                <div class="flex items-center">
+                    <div>
+                        Tác vụ:
+                    </div>
+                    <div>
+                        <OrderHandleButtons @cancel="emits('cancel',order.id)" @fail="emits('fail',order.id)" @success="emits('success',order.id)"
+                            :state="order.state" />
+                    </div>
                 </div>
             </div>
         </div>

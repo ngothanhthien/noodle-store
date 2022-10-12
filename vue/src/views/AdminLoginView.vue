@@ -7,6 +7,7 @@ import LockIcon from "../components/icons/LockIcon.vue";
 import { adminLoginAPI } from "../api";
 import validate from "../validate/login"
 import axios from "axios";
+import ErrorDisplay from "../components/ErrorDisplay.vue";
 
 const router = useRouter()
 const form = reactive({
@@ -25,11 +26,13 @@ const login = async (e) => {
             data: unref(form),
         });
         Cookies.set('User Token', response.data.token);
+        Cookies.set('Role','Admin');
         router.push({ name: 'dashboard' });
     } catch (e) {
         loginEnable(button);
         if(!e.response){
             error.value = e;
+            return;
         }
         if(e.response.status==401){
             error.value="Sai tài khoản hoặc mật khẩu"
@@ -55,8 +58,8 @@ const loginEnable = (button) => {
             <div class="self-center mb-3 text-xl font-light text-gray-600 sm:text-2xl">
                 Admin
             </div>
-            <div class="self-center text-red-500">{{ error }}</div>
-            <div class="mt-8">
+            <div class="relative pt-9">
+                <ErrorDisplay :error="error" class="w-full text-center"></ErrorDisplay>
                 <form @submit.prevent action="#" autoComplete="on">
                     <div class="flex flex-col mb-2">
                         <div class="flex relative">
