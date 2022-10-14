@@ -3,16 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OrderStoreRequest;
-use App\Http\Requests\OrderUpdateRequest;
 use App\Http\Resources\OrderDetailResource;
 use App\Http\Resources\OrderResource;
 use App\Models\Customer;
-use App\Models\Meal;
 use App\Models\Order;
 use App\Services\OrderService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {

@@ -14,9 +14,15 @@ const orderExpand=ref(false);
 const settingExpand=ref(false);
 const name=ref('Admin');
 const info=getUserInfo();
+const rules=ref(['admin']);
+console.log(info);
 if(info){
   name.value=info.name;
+  rules.value=info.rules.map(rule=>rule.name);
 }
+const ruleStaff=()=>rules.value.includes('admin')||rules.value.includes("staff-manage");
+const ruleMeal=()=>rules.value.includes('admin')||rules.value.includes("staff-manage");
+const ruleCustomer=()=>rules.value.includes('admin')||rules.value.includes("customer-manage");
 </script>
 
 <template>
@@ -24,13 +30,13 @@ if(info){
     <div class="w-72 h-full divide-y">
       <div class="py-2 px-2">Chào {{name}}!</div>
       <div>
-        <SidebarItem :icon="GroupIcon" title="Quản lý nhân viên" target="Staff Manage" />
+        <SidebarItem v-if="ruleStaff()" :icon="GroupIcon" title="Quản lý nhân viên" target="Staff Manage" />
         <SideBarItemExpand @toggle="orderExpand=!orderExpand" :isExpanded="orderExpand" :icon="ShoppingCartIcon" title="Đơn hàng">
           <SidebarSubItem title="Tạo đơn" target="Order Create"/>
           <SidebarSubItem title="Xử lý đơn" target="Order Manage" />
         </SideBarItemExpand>
-        <SidebarItem :icon="RamenDinningIcon" title="Quản lý món ăn" target="Meal Manage" />
-        <SidebarItem :icon="ContractPhone" title="Khách hàng" target="Customer View" />
+        <SidebarItem v-if="ruleMeal()" :icon="RamenDinningIcon" title="Quản lý món ăn" target="Meal Manage" />
+        <SidebarItem v-if="ruleCustomer()" :icon="ContractPhone" title="Khách hàng" target="Customer View" />
         <SideBarItemExpand @toggle="settingExpand=!settingExpand" :isExpanded="settingExpand" :icon="SettingsIcon" title="Cài đặt" target="Profile">
           <SidebarSubItem title="Đổi mật khẩu" target="Change Password"/>
           <SidebarSubItem title="Cập nhật thông tin" target="Change Info" />

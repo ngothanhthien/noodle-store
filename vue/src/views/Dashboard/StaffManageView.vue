@@ -126,38 +126,41 @@ function staffEditCb(form, id) {
     </div>
     <div class="flex-auto overflow-y-auto">
       <LoadingElement v-if="isLoadingStaffs" />
-      <table v-else class="table-auto border-collapse w-full h-full my-2 ">
-        <tr>
-          <th class="text-left" rowspan="2">Thông tin</th>
-          <th colspan="2">Tổng đơn</th>
-          <th rowspan="2">Quyền</th>
-          <th rowspan="2"></th>
-        </tr>
-        <tr>
-          <th>Trong ngày</th>
-          <th>Trong tháng</th>
-        </tr>
-        <tr :class="{'bg-yellow-300':staff.id==updatedStaffId}" :key="staff.id" v-for="staff in staffsFiltered">
-          <td>
-            <div>{{staff.name!=null?staff.name:'Chưa có tên'}}</div>
-            <div>{{staff.phone!=null?staff.phone:'Chưa có số'}}</div>
-          </td>
-          <td class="text-center">{{staff.orders_today}}</td>
-          <td class="text-center">{{staff.orders_this_month}}</td>
-          <td class="divide-x-2 divide-gray-400 text-center">
-            <div :key="rule.name+' - '+staff.id" class="inline-block p-1" v-if="staff.rules.length!=0"
-              v-for="rule in staff.rules">
-              {{ruleMap[rule.name]}}</div>
-            <div class="inline-block p-1" v-else>Cơ bản</div>
-          </td>
-          <td>
-            <div class="flex">
-              <ButtonSoftDelete @click="showConfirmDelete({name: staff.name, id: staff.id})" class="w-7 h-7 m-auto" />
-              <ButtonEdit @click="editStaff=staff" class="w-7 h-7 m-auto"></ButtonEdit>
-            </div>
-          </td>
-        </tr>
-      </table>
+      <div v-else>
+        <div v-if="staffsFiltered.length==0">Không có nhân viên.</div>
+        <table v-else class="table-auto border-collapse w-full my-2 ">
+          <tr>
+            <th class="text-left" rowspan="2">Thông tin</th>
+            <th colspan="2">Tổng đơn</th>
+            <th rowspan="2">Quyền</th>
+            <th rowspan="2"></th>
+          </tr>
+          <tr>
+            <th>Trong ngày</th>
+            <th>Trong tháng</th>
+          </tr>
+          <tr :class="{'bg-yellow-300':staff.id==updatedStaffId}" :key="staff.id+'staff'" v-for="staff in staffsFiltered">
+            <td>
+              <div>{{staff.name!=null?staff.name:'Chưa có tên'}}</div>
+              <div>{{staff.phone!=null?staff.phone:'Chưa có số'}}</div>
+            </td>
+            <td class="text-center">{{staff.orders_today}}</td>
+            <td class="text-center">{{staff.orders_this_month}}</td>
+            <td class="divide-x-2 divide-gray-400 text-center">
+              <div :key="rule.name+' - '+staff.id" class="inline-block p-1" v-if="staff.rules.length!=0"
+                v-for="rule in staff.rules">
+                {{ruleMap[rule.name]}}</div>
+              <div class="inline-block p-1" v-else>Cơ bản</div>
+            </td>
+            <td>
+              <div class="flex">
+                <ButtonSoftDelete @click="showConfirmDelete({name: staff.name, id: staff.id})" class="w-7 h-7 m-auto" />
+                <ButtonEdit @click="editStaff=staff" class="w-7 h-7 m-auto"></ButtonEdit>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
   <ConfirmModal @clickOutside="confirmDeleteVisible=false" @cancel="confirmDeleteVisible=false" @confirm="confirmDelete"

@@ -32,18 +32,22 @@ class OrderService
     public function create($form,$user){
         DB::beginTransaction();
         $order=new Order();
+        $meals=$this->prepareMealsInput($form['meals']);
+        $order->total_price=$this->calculateTotalPrice($meals);
         $order->customer_id=null;
         if($this->isNewOrderHaveCustomer($form)){
             $customer=$this->customerService->updateOrCreateByPhone($form['phone'],$form['address']);
+            $this->customerService->increasePurchase($order->total_price,$customer);
             $order->customer_id=$customer->id;
         }
         $order->state=$form['payment_gate']==Order::PAYMENT_GATE_CALL?$order->state=Order::STATE_DELIVERY:Order::STATE_SUCCESS;
         $order->user_id=$this->authService->isAdmin($user)?null:$user->id;
         $order->payment_gate=$form['payment_gate'];
-        $meals=$this->prepareMealsInput($form['meals']);
-        $order->total_price=$this->calculateTotalPrice($meals);
         $order->save();
         $order->meals()->attach($meals);
+        foreach($order->meals as $meal){
+            $this->mealService->increaseBuyAmount($meal->pivot->quality,$meal);
+        }
         DB::commit();
         return $order;
     }

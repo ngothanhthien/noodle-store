@@ -63,7 +63,7 @@ const loginEnable = (button) => {
             <div class="flex relative">
               <span
                 class="rounded-l-md inline-flex items-center px-3 border-t bg-white border-l border-b border-gray-300 text-gray-500 shadow-sm text-sm">
-                <PersonIcon class="w-5 h-5 fill-current" />
+                <PersonIcon class="w-5 h-5 fill-purple-700" />
               </span>
               <input @focus="clearError" type="text"
                 class="rounded-r-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
@@ -74,7 +74,7 @@ const loginEnable = (button) => {
             <div class="flex relative">
               <span
                 class="rounded-l-md inline-flex items-center px-3 border-t bg-white border-l border-b border-gray-300 text-gray-500 shadow-sm text-sm">
-                <LockIcon class="w-5 h-5 fill-current" />
+                <LockIcon class="w-5 h-5 fill-purple-700" />
               </span>
               <input @focus="clearError" type="password"
                 class="rounded-r-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
