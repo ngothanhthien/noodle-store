@@ -21,14 +21,11 @@ class OrderController extends Controller
         return response(['message'=>'success'], config('apistatus.ok'));
     }
     public function getAll(){
-        try{
-            $orders=Order::with('customer')
-            ->latest()
-            ->paginate(Order::ORDER_PER_PAGE);
-            return response(OrderResource::collection($orders)->response()->getData(true),config('apistatus.ok'));
-        }catch(Exception $e){
-            return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
-        }
+        $orders=Order::with('customer')
+        ->with('user')
+        ->latest()
+        ->paginate(Order::ORDER_PER_PAGE);
+        return response(OrderResource::collection($orders)->response()->getData(true),config('apistatus.ok'));
     }
     public function get($id){
         try{
@@ -40,6 +37,7 @@ class OrderController extends Controller
     }
     public function getByState($state){
         $orders=Order::with('customer')
+        ->with('user')
         ->where('state',$state)
         ->latest()
         ->paginate(Order::ORDER_PER_PAGE);

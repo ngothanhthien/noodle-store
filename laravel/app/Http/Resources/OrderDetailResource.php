@@ -17,7 +17,7 @@ class OrderDetailResource extends JsonResource
         return [
             'id' => $this->id,
             'customer' => $this->whenLoaded('customer'),
-            'user' => $this->whenLoaded('user'),
+            'user' => new StaffResourcePreview($this->whenLoaded('user')),
             'state' =>$this->state,
             'total_price' =>$this->total_price,
             'payment_gate' => $this->payment_gate,

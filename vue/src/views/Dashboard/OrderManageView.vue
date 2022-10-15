@@ -196,6 +196,7 @@ function search() {
                 <table v-else class="table-auto table border-collapse w-full">
                     <tr class="bg-gray-300">
                         <th class="p-2 border-gray-400 border">Mã</th>
+                        <th class="p-2 border-gray-400 border">Nhân viên</th>
                         <th class="p-2 border-gray-400 border">Thông tin</th>
                         <th class="p-2 border-gray-400 border">Tổng tiền</th>
                         <th class="p-2 border-gray-400 border">Thời gian</th>
@@ -205,6 +206,7 @@ function search() {
                     <tr class="hover:bg-gray-200" v-for="order in orders" :key="order.id">
                         <td class="text-center border-gray-400 border  cursor-pointer" @click="orderDetail(order.id)">
                             {{order.id}}</td>
+                        <td class="text-center border-gray-400 border cursor-pointer" @click="orderDetail(order.id)">{{order.user?order.user.name:'Admin'}}</td>
                         <td class="text-center border-gray-400 border  cursor-pointer" @click="orderDetail(order.id)">
                             <div>{{PaymentMap[order.payment_gate]}}</div>
                             <div v-if="order.customer!=null">

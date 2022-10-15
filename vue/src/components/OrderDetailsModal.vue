@@ -27,13 +27,11 @@ onMounted(async () => {
             }
         });
         order.value = response.data;
+        console.log(order);
     } catch (e) {
         errorHandle(e.response.status, e);
         orderDetailExits.value = false;
     }
-});
-const staff = computed(() => {
-    return order.user != null ? order.user : 'Admin';
 });
 onClickOutside(box, () => {
     emits('close');
@@ -53,7 +51,7 @@ onClickOutside(box, () => {
                 </div>
                 <div>
                     <span>Chốt đơn:</span>
-                    <span class="ml-2">{{staff}}</span>
+                    <span class="ml-2">{{order.user?order.user.name:'Admin'}}</span>
                 </div>
                 <div>
                     <span>Trạng thái:</span>
