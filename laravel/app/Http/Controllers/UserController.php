@@ -5,48 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Http\Resources\StaffResource;
-use App\Models\Rule;
 use App\Models\User;
-use Exception;
+use App\Services\StaffService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
-    public function store(UserStoreRequest $request){
-        $form=$request->validated();
-        $username=$this->convertNameToUserName($form['name']);
-        if(User::where('username',$username)->exists()) {
-           $username=$username.'_'.substr($form['phone'],-3);
-        }
-        $form['username']=$username;
-        $password=Str::random(6);
-        $form['password']=Hash::make($password);
-        DB::beginTransaction();
-        try{
-            $user=User::create($form);
-            $rules=[];
-            foreach($request->rules as $rule){
-                array_push($rules,['user_id'=>$user->id,'name'=>$rule]);
-            }
-            if(count($rules)>0){
-                Rule::insert($rules);
-            }
-            $user->rules;
-            DB::commit();
-            return response([
-                'username'=>$username,
-                'password'=>$password,
-                'user_info'=>new StaffResource($user)
-        ],config('apistatus.ok'));
-        }catch(Exception $e){
-            DB::rollBack();
-            return response([
-                'errors'=>$e->getMessage()
-            ],config('apistatus.badRequest'));
-        }
+    public function store(UserStoreRequest $request,StaffService $staffService){
+        return response($staffService->create($request->all()),config('apistatus.ok'));
     }
     public function destroy(User $user,Request $request){
         if(!$request->user()->tokenCan('admin')&&$request->user()->id==$user->id){
@@ -62,36 +28,8 @@ class UserController extends Controller
         $user->rules;
         return new StaffResource($user);
     }
-    public function update(UserUpdateRequest $request,User $user){
-        DB::beginTransaction();
-        try{
-            $user->update($request->only(['name','phone']));
-            Rule::where('user_id',$user->id)->delete();
-            $rules=[];
-            foreach($request->rules as $rule){
-                array_push($rules,[
-                    'name'=>$rule,
-                    'user_id'=>$user->id
-                ]);
-            }
-            Rule::insert($rules);
-            DB::commit();
-        }catch(Exception $e){
-            DB::rollBack();
-            return response(['errors'=>$e->getMessage()],config('apistatus.badRequest'));
-        }
-        return response(['user'=>new StaffResource($user)],config('apistatus.ok'));
+    public function update(UserUpdateRequest $request,User $user,StaffService $staffService){
+        return response(new StaffResource($staffService->update($request->all(),$user)),config('apistatus.ok'));
     }
-    private function convertNameToUserName($str) {
-        $str=strtolower($str);
-		$str = preg_replace("/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/", 'a', $str);
-		$str = preg_replace("/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/", 'e', $str);
-		$str = preg_replace("/(ì|í|ị|ỉ|ĩ)/", 'i', $str);
-		$str = preg_replace("/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/", 'o', $str);
-		$str = preg_replace("/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/", 'u', $str);
-		$str = preg_replace("/(ỳ|ý|ỵ|ỷ|ỹ)/", 'y', $str);
-		$str = preg_replace("/(đ)/", 'd', $str);
-		$str = preg_replace("/( )/", '', $str);
-		return $str;
-	}
+
 }

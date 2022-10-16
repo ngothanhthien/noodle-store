@@ -40,17 +40,25 @@ Route::middleware(['auth:sanctum', 'ability:admin,user'])->group(function(){
     Route::patch('/order/fail/{order}',[OrderController::class,'fail']);
     Route::patch('/order/cancel/{order}',[OrderController::class,'cancel']);
 });
-Route::middleware(['auth:sanctum','ability:admin'])->group(function(){
+Route::middleware(['auth:sanctum','ability:admin,staff-manage:delete'])->group(function(){
     Route::delete('/user/{user}',[UserController::class,'destroy']);
 });
-Route::middleware(['auth:sanctum', 'ability:admin,staff-manage'])->group(function(){
+Route::middleware(['auth:sanctum', 'ability:admin,staff-manage:create'])->group(function(){
     Route::post('/user',[UserController::class,'store']);
-    Route::get('/users',[UserController::class,'getAll']);
+});
+Route::middleware(['auth:sanctum', 'ability:admin,staff-manage:update'])->group(function(){
     Route::put('/user/{user}',[UserController::class,'update']);
 });
-Route::middleware(['auth:sanctum', 'ability:admin,meal-manage'])->group(function(){
+Route::middleware(['auth:sanctum', 'ability:admin,staff-manage:update,staff-manage:create,staff-manage:delete'])->group(function(){
+    Route::get('/users',[UserController::class,'getAll']);
+});
+Route::middleware(['auth:sanctum', 'ability:admin,meal-manage:create'])->group(function(){
     Route::post('/meal',[MealController::class,'store']);
+});
+Route::middleware(['auth:sanctum', 'ability:admin,meal-manage:delete'])->group(function(){
     Route::delete('/meal/{meal}',[MealController::class,'destroy']);
+});
+Route::middleware(['auth:sanctum', 'ability:admin,meal-manage:update'])->group(function(){
     Route::put('/meal/{meal}',[MealController::class,'update']);
 });
 Route::middleware(['auth:sanctum', 'ability:admin,customer-manage'])->group(function(){

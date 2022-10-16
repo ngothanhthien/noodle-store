@@ -1,5 +1,6 @@
 <script setup>
 import AddIcon from './icons/AddIcon.vue';
+import ExpandMoreIcon from './icons/ExpandMoreIcon.vue';
 const props = defineProps(["icon", "title","isExpanded"]);
 const emits=defineEmits(['toggle']);
 </script>
@@ -10,7 +11,7 @@ const emits=defineEmits(['toggle']);
                 <component :is="icon" class="w-5 h-5 fill-current"></component>
             </div>
             <div class="ml-2">{{ title }}</div>
-            <div class="ml-auto"><AddIcon class="w-5 h-5 fill-current"/></div>
+            <div class="ml-auto"><ExpandMoreIcon class="w-5 h-5 fill-current"/></div>
         </div>
         <div class="ml-9" v-if="isExpanded">
             <slot></slot>

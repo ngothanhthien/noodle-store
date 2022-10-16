@@ -13,7 +13,6 @@ import InfoModal from "../../components/InfoModal.vue";
 import LoadingElement from "../../components/LoadingElement.vue";
 import errorHandle from "../../logic/errorHandle"
 import StaffEditModal from "../../components/StaffEditModal.vue";
-import ButtonEdit from "../../components/ButtonEdit.vue";
 const rulesFilter = ref([]);
 const staffs = ref([]);
 const search = ref('');
@@ -100,11 +99,20 @@ function staffEditCb(form, id) {
   editStaff.value = null;
   updatedStaffId.value = id;
   const updatedStaffIndex = staffs.value.findIndex(staff => staff.id == id);
-  console.log(staffs.value[updatedStaffIndex]);
   staffs.value[updatedStaffIndex]['phone'] = form.phone;
   staffs.value[updatedStaffIndex]['name'] = form.name;
   staffs.value[updatedStaffIndex]['rules'] = form.rules.map(rule => ({ name: rule }));
 }
+function rulesToView(rules){
+  const output=[];
+  for(let i=0;i<rules.length;i++){
+    const rule=rules[i]['name'].split(':')[0];
+    if(output.indexOf(rule)===-1){
+      output.push(rule);
+    }
+  }
+  return output;
+};
 </script>
 
 <template>
@@ -116,7 +124,7 @@ function staffEditCb(form, id) {
         <div>Lọc chức vụ:</div>
         <div :key="index" v-for="(rule, index) in ruleMap" :class="rulesClass(index)"
           class="ml-2 py-1 px-2 border border-green-700 cursor-pointer select-none" @click="toggleFilter(index)">
-          {{ rule }}
+          {{ rule.name }}
         </div>
       </div>
       <div class="w-1/2 m-auto">
@@ -139,23 +147,24 @@ function staffEditCb(form, id) {
             <th>Trong ngày</th>
             <th>Trong tháng</th>
           </tr>
-          <tr :class="{'bg-yellow-300':staff.id==updatedStaffId}" :key="staff.id+'staff'" v-for="staff in staffsFiltered">
-            <td>
+          <tr class="hover:bg-gray-200" :class="{'bg-yellow-300':staff.id==updatedStaffId}" :key="staff.id+'staff'"
+            v-for="staff in staffsFiltered">
+            <td @click="editStaff=staff" class="cursor-pointer">
               <div>{{staff.name!=null?staff.name:'Chưa có tên'}}</div>
               <div>{{staff.phone!=null?staff.phone:'Chưa có số'}}</div>
             </td>
-            <td class="text-center">{{staff.orders_today}}</td>
-            <td class="text-center">{{staff.orders_this_month}}</td>
-            <td class="divide-x-2 divide-gray-400 text-center">
+            <td @click="editStaff=staff" class="cursor-pointer text-center">{{staff.orders_today}}</td>
+            <td @click="editStaff=staff" class="cursor-pointer text-center">{{staff.orders_this_month}}</td>
+            <td @click="editStaff=staff" class="cursor-pointer divide-x-2 divide-gray-400 text-center">
               <div :key="rule.name+' - '+staff.id" class="inline-block p-1" v-if="staff.rules.length!=0"
-                v-for="rule in staff.rules">
-                {{ruleMap[rule.name]}}</div>
+                v-for="rule in rulesToView(staff.rules)">
+                {{ruleMap[rule]['name']}}
+             </div>
               <div class="inline-block p-1" v-else>Cơ bản</div>
             </td>
             <td>
               <div class="flex">
                 <ButtonSoftDelete @click="showConfirmDelete({name: staff.name, id: staff.id})" class="w-7 h-7 m-auto" />
-                <ButtonEdit @click="editStaff=staff" class="w-7 h-7 m-auto"></ButtonEdit>
               </div>
             </td>
           </tr>
@@ -170,9 +179,9 @@ function staffEditCb(form, id) {
     </template>
   </ConfirmModal>
   <StaffCreateModal v-if="createModalVisible" @successCb="successCreateCb" @close="createModalVisible=false"
-    @outside="createModalVisible=false"></StaffCreateModal>
+    @outside="createModalVisible=false" />
   <StaffEditModal @successCb="staffEditCb" @outside="editStaff=null" @close="editStaff=null" :staff="editStaff"
-    v-if="editStaff!=null"></StaffEditModal>
+    v-if="editStaff!=null" />
   <InfoModal v-if="infoModalVisible" @close="infoModalVisible=false">
     <template v-slot:content>
       <div class="text-lg mb-4 select-none">
@@ -195,8 +204,11 @@ function staffEditCb(form, id) {
   </InfoModal>
 </template>
 <style lang="postcss" scoped>
+th{
+  @apply bg-gray-300
+}
 th,
 td {
-  @apply p-2 border border-gray-300
+  @apply p-2 border border-gray-400
 }
 </style>

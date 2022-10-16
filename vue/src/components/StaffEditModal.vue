@@ -2,22 +2,22 @@
 import { onClickOutside } from '@vueuse/core';
 import { reactive, ref, unref } from 'vue';
 import ButtonClose from './ButtonClose.vue';
-import CheckBox from './CheckBox.vue';
+import RuleComponent from './RuleComponent.vue';
 import rules from '../mapping/rule';
-import { addOrRemove } from '../logic/array';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import validate from '../validate/staff';
 import errorHandle from '../logic/errorHandle';
 import ErrorDisplay from './ErrorDisplay.vue';
-import {staffAPI} from '../api'
-const props=defineProps(['staff']);
+import { staffAPI } from '../api'
+import { addOrRemove } from '../logic/array';
+const props = defineProps(['staff']);
 const emits = defineEmits(['outside', 'close', 'successCb']);
 const token = Cookies.get('User Token');
 const form = reactive({
     name: props.staff.name,
     phone: props.staff.phone,
-    rules: props.staff.rules.map(rule=>rule.name),
+    rules: ruleConvert(props.staff.rules),
 })
 const submitButton = ref(null);
 const error = ref(null);
@@ -27,16 +27,16 @@ async function onSubmit() {
         validate(unref(form));
         await axios({
             method: 'PUT',
-            url: staffAPI+'/'+props.staff.id,
+            url: staffAPI + '/' + props.staff.id,
             data: unref(form),
             headers: {
                 'Authorization': 'Bearer ' + token
             }
         });
-        emits('successCb', unref(form),props.staff.id);
+        emits('successCb', unref(form), props.staff.id);
     } catch (e) {
         buttonNotSubmit();
-        if(e.response){
+        if (e.response) {
             errorHandle(e.response.status, e);
             return;
         }
@@ -55,6 +55,32 @@ function buttonSubmitting() {
 function buttonNotSubmit() {
     submitButton.value.innerHTML = 'Cập nhật';
     submitButton.value.disabled = false;
+}
+function ruleToggle(rule){
+    if(form.rules.hasOwnProperty(rule)){
+        delete form.rules[rule];
+        return;
+    }
+    form.rules[rule]=[];
+    if(rules[rule]['subRule']){
+        form.rules[rule] = Object.keys(rules[rule]['subRule']);
+    }
+}
+function subRuleToggle(rule,subRule){
+    addOrRemove(form.rules[rule],subRule);
+}
+function ruleConvert(rules){
+    const output={};
+    for(let i=0; i<rules.length; i++){
+        const rule=rules[i]['name'].split(':')[0];
+        const subRule=rules[i]['name'].split(':')[1];
+        if(output[rule]){
+            output[rule].push(subRule);
+        }else{
+            output[rule]=[subRule];
+        }
+    }
+    return output;
 }
 </script>
     
@@ -79,10 +105,11 @@ function buttonNotSubmit() {
                 </div>
                 <div class="my-3">
                     <div class="text-lg mb-1">Quyền</div>
-                    <div class="flex">
+                    <div class="flex space-x-2">
                         <div v-for="(rule,key) in rules">
-                            <CheckBox :isChecked="form.rules.includes(key)" @check="addOrRemove(form.rules,key)">
-                                {{rule}}</CheckBox>
+                            <RuleComponent :rule="rule" :formSubRule="form.rules[key]"
+                                :isChecked="Object.hasOwn(form.rules,key)" @subRule-check="subRuleToggle(key,$event)"
+                                @check="ruleToggle(key)" />
                         </div>
                     </div>
                 </div>
