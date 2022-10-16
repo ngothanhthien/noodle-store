@@ -31,5 +31,4 @@ class UserController extends Controller
     public function update(UserUpdateRequest $request,User $user,StaffService $staffService){
         return response(new StaffResource($staffService->update($request->all(),$user)),config('apistatus.ok'));
     }
-
 }

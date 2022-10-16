@@ -13,12 +13,16 @@ import InfoModal from "../../components/InfoModal.vue";
 import LoadingElement from "../../components/LoadingElement.vue";
 import errorHandle from "../../logic/errorHandle"
 import StaffEditModal from "../../components/StaffEditModal.vue";
+import LockResetIcon from "../../components/icons/LockResetIcon.vue";
+import { getNewPasswordAPI } from "../../api"
 const rulesFilter = ref([]);
 const staffs = ref([]);
 const search = ref('');
 const isLoadingStaffs = ref(true);
 const editStaff = ref(null);
 const updatedStaffId = ref(null);
+const newPasswordResponse=ref(null);
+const newPasswordInfoVisible=ref(false);
 const staffsFiltered = computed(() => {
   return staffs.value.filter((staff) =>
     staff.name.toLowerCase().includes(search.value.toLowerCase())
@@ -103,16 +107,27 @@ function staffEditCb(form, id) {
   staffs.value[updatedStaffIndex]['name'] = form.name;
   staffs.value[updatedStaffIndex]['rules'] = form.rules.map(rule => ({ name: rule }));
 }
-function rulesToView(rules){
-  const output=[];
-  for(let i=0;i<rules.length;i++){
-    const rule=rules[i]['name'].split(':')[0];
-    if(output.indexOf(rule)===-1){
+function rulesToView(rules) {
+  const output = [];
+  for (let i = 0; i < rules.length; i++) {
+    const rule = rules[i]['name'].split(':')[0];
+    if (output.indexOf(rule) === -1) {
       output.push(rule);
     }
   }
   return output;
 };
+async function getNewPassword(id) {
+  const response = await axios({
+    url: getNewPasswordAPI(id),
+    method: "PATCH",
+    headers: {
+      "Authorization": "Bearer " + token
+    }
+  })
+  newPasswordInfoVisible.value=true;
+  newPasswordResponse.value=response.data;
+}
 </script>
 
 <template>
@@ -141,7 +156,7 @@ function rulesToView(rules){
             <th class="text-left" rowspan="2">Thông tin</th>
             <th colspan="2">Tổng đơn</th>
             <th rowspan="2">Quyền</th>
-            <th rowspan="2"></th>
+            <th rowspan="2">Tác vụ</th>
           </tr>
           <tr>
             <th>Trong ngày</th>
@@ -159,12 +174,16 @@ function rulesToView(rules){
               <div :key="rule.name+' - '+staff.id" class="inline-block p-1" v-if="staff.rules.length!=0"
                 v-for="rule in rulesToView(staff.rules)">
                 {{ruleMap[rule]['name']}}
-             </div>
+              </div>
               <div class="inline-block p-1" v-else>Cơ bản</div>
             </td>
             <td>
-              <div class="flex">
-                <ButtonSoftDelete @click="showConfirmDelete({name: staff.name, id: staff.id})" class="w-7 h-7 m-auto" />
+              <div class="flex items-center space-x-4 justify-center">
+                <ButtonSoftDelete @click="showConfirmDelete({name: staff.name, id: staff.id})" class="w-7 h-7" />
+                <div @click="getNewPassword(staff.id)"
+                  class="cursor-pointer w-7 h-7 bg-gray-500 text-white rounded p-1 hover:bg-gray-600">
+                  <LockResetIcon class="w-full h-full fill-white" />
+                </div>
               </div>
             </td>
           </tr>
@@ -202,11 +221,32 @@ function rulesToView(rules){
       OK
     </template>
   </InfoModal>
+  <InfoModal v-if="newPasswordInfoVisible" @close="newPasswordInfoVisible=false">
+    <template v-slot:content>
+      <div class="text-lg mb-4 select-none">
+        Tạo mật khẩu mới thành công
+      </div>
+      <div class="max-w-fit m-auto">
+        <div class="text-left">
+          <span class="mr-2 select-none">Tài khoản:</span>
+          <span>{{newPasswordResponse.username}}</span>
+        </div>
+        <div class="text-left mb-6">
+          <span class="mr-2 select-none">Mật khẩu mới:</span>
+          <span>{{newPasswordResponse.password}}</span>
+        </div>
+      </div>
+    </template>
+    <template v-slot:button>
+      OK
+    </template>
+  </InfoModal>
 </template>
 <style lang="postcss" scoped>
-th{
+th {
   @apply bg-gray-300
 }
+
 th,
 td {
   @apply p-2 border border-gray-400

@@ -23,7 +23,6 @@ Route::post('/user/login',[AuthController::class,'userLogin']);
 Route::middleware(['auth:sanctum', 'ability:admin,user'])->group(function(){
     Route::get('/logout',[AuthController::class,'logout']);
     Route::get('/me',[AuthController::class,'getUserByToken']);
-    Route::patch('/change-password',[AuthController::class,'changePassword']);
     Route::get('/user/{user}',[UserController::class,'get']);
     Route::get('/customer',[CustomerController::class,'get']);
     Route::post('/customer',[CustomerController::class,'store']);
@@ -39,6 +38,9 @@ Route::middleware(['auth:sanctum', 'ability:admin,user'])->group(function(){
     Route::patch('/order/success/{order}',[OrderController::class,'success']);
     Route::patch('/order/fail/{order}',[OrderController::class,'fail']);
     Route::patch('/order/cancel/{order}',[OrderController::class,'cancel']);
+});
+Route::middleware(['auth:sanctum','ability:admin'])->group(function(){
+    Route::patch('/user/{user}/new-password',[AuthController::class,'newPassword']);
 });
 Route::middleware(['auth:sanctum','ability:admin,staff-manage:delete'])->group(function(){
     Route::delete('/user/{user}',[UserController::class,'destroy']);

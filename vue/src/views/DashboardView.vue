@@ -37,10 +37,6 @@ const ruleCustomer=()=>rules.value.includes('admin')||rules.value.includes("cust
         </SideBarItemExpand>
         <SidebarItem v-if="ruleMeal()" :icon="RamenDinningIcon" title="Quản lý món ăn" target="Meal Manage" />
         <SidebarItem v-if="ruleCustomer()" :icon="ContractPhone" title="Khách hàng" target="Customer View" />
-        <SideBarItemExpand @toggle="settingExpand=!settingExpand" :isExpanded="settingExpand" :icon="SettingsIcon" title="Cài đặt" target="Profile">
-          <SidebarSubItem title="Đổi mật khẩu" target="Change Password"/>
-          <SidebarSubItem title="Cập nhật thông tin" target="Change Info" />
-        </SideBarItemExpand>
       </div>
     </div>
     <div class="w-full h-full bg-slate-100 py-2 px-4 relative">

@@ -8,6 +8,7 @@ use App\Http\Resources\StaffResource;
 use App\Models\Admin;
 use App\Models\User;
 use App\Services\AuthService;
+use App\Services\StaffService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -61,5 +62,8 @@ class AuthController extends Controller
         }
         $user->rules;
         return response(['user'=>$user,'role'=>'user'],config('apistatus.ok'));
+    }
+    public function newPassword(User $user,StaffService $staffService){
+       return response(['password'=>$staffService->newPassword($user),'username'=>$user->username],config('apistatus.ok'));
     }
 }
