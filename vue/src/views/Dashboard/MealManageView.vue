@@ -2,10 +2,8 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import MealViewCard from '../../components/MealViewCard.vue';
 import mealTypes from '../../mapping/type';
-import { getAllMealAPI } from '../../api';
-import { getUserToken } from '../../logic/auth';
+import { getAllMealAPI } from '../../api/mealAPI';
 import errorHandle from '../../logic/errorHandle'
-import axios from 'axios';
 import FilterContainer from '../../components/FilterContainer.vue';
 import ButtonCreate from '../../components/ButtonCreate.vue';
 import MealCreateModal from '../../components/MealCreateModal.vue';
@@ -16,7 +14,6 @@ import InfoModal from '../../components/InfoModal.vue';
 const meals = ref([]);
 const filterType = ref(null);
 const mealSearchBar = ref('');
-const token = getUserToken();
 const mealCreateVisible = ref(false);
 const mealDetail = ref(null);
 const isLoadingMeals = ref(true);
@@ -27,13 +24,7 @@ const infoModal=reactive({
 })
 onMounted(async () => {
     try {
-        const response = await axios({
-            method: 'GET',
-            url: getAllMealAPI,
-            headers: {
-                'Authorization': 'Bearer ' + token
-            },
-        });
+        const response = await getAllMealAPI();
         isLoadingMeals.value = false;
         meals.value = response.data.meals;
     } catch (error) {
@@ -62,14 +53,14 @@ function addTypeToFilter(type) {
 function editMeal(meal) {
     mealDetail.value = meal;
 }
-function successCreateMeal({ meal }) {
+function successCreateMeal(meal) {
     mealCreateVisible.value = false;
     updatedMealID.value = meal.id;
     meal.buy_amount = 0;
     meals.value.unshift(meal);
     showInfoModal('Tạo món thành công');
 }
-function successEditMeal({ meal }) {
+function successEditMeal(meal) {
     mealDetail.value = null;
     updatedMealID.value = meal.id;
     const foundIndex = meals.value.findIndex(obj => obj.id == meal.id);

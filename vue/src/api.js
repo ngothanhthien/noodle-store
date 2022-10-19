@@ -7,6 +7,8 @@ export const getAllStaffAPI=server+"/users"; //get
 export const getNewPasswordAPI=(id)=>server+"/user/"+id+"/new-password"; //patch
 export const staffAPI=server+"/user"; //delete +id,post, get + id,PUT+id
 export const getAllMealAPI=server+"/meals"; //get
+export const getAllToppingAPI=server+"/meals/topping"; //get
+export const getToppingByMeal=(id)=>server+"/meal/"+id+"/toppings";//get
 export const getCustomerByPhone=server+"/customer";//get
 export const getAllCustomerAPI=server+"/customers";//get
 export const getOrders=server+"/orders/"; //get +state

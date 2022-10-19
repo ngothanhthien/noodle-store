@@ -32,6 +32,7 @@ Route::middleware(['auth:sanctum', 'ability:admin,user'])->group(function(){
     Route::get('/order/phone/{phone}',[OrderController::class,'getByPhone']);
     Route::get('/meals/new',[MealController::class,'getNewMeal']);
     Route::get('/meals/best',[MealController::class,'getBestSellerMeal']);
+    Route::get('/meal/{meal}/toppings',[MealController::class,'getToppings']);
     Route::get('/meals',[MealController::class,'getAll']);
     Route::get('/orders/{state}',[OrderController::class,'getByState']);
     Route::get('/orders',[OrderController::class,'getAll']);
@@ -62,6 +63,9 @@ Route::middleware(['auth:sanctum', 'ability:admin,meal-manage:delete'])->group(f
 });
 Route::middleware(['auth:sanctum', 'ability:admin,meal-manage:update'])->group(function(){
     Route::put('/meal/{meal}',[MealController::class,'update']);
+});
+Route::middleware(['auth:sanctum', 'ability:admin,meal-manage:update,meal-manage:create'])->group(function(){
+    Route::get('/meals/topping',[MealController::class,'getAllToppings']);
 });
 Route::middleware(['auth:sanctum', 'ability:admin,customer-manage'])->group(function(){
     Route::get('/customers',[CustomerController::class,'getAll']);
